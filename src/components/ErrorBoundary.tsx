@@ -1,4 +1,5 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react';
+import { AlertCircle, RefreshCw } from 'lucide-react';
 
 interface Props {
   children: ReactNode;
@@ -7,57 +8,86 @@ interface Props {
 interface State {
   hasError: boolean;
   error: Error | null;
+  errorInfo: string | null;
 }
 
 export class ErrorBoundary extends Component<Props, State> {
-  public state: State;
-  public props: Props;
-
-  constructor(props: Props) {
-    super(props);
-    this.props = props;
-    this.state = {
-      hasError: false,
-      error: null
-    };
-  }
+  public state: State = {
+    hasError: false,
+    error: null,
+    errorInfo: null
+  };
 
   public static getDerivedStateFromError(error: Error): State {
-    return { hasError: true, error };
+    return { hasError: true, error, errorInfo: null };
   }
 
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     console.error('Uncaught error:', error, errorInfo);
+    
+    // Try to parse JSON error if it's from Firestore
+    let detailedInfo = null;
+    try {
+      detailedInfo = JSON.parse(error.message);
+    } catch (e) {
+      detailedInfo = error.message;
+    }
+
+    this.setState({
+      error,
+      errorInfo: typeof detailedInfo === 'object' ? JSON.stringify(detailedInfo, null, 2) : String(detailedInfo)
+    });
   }
 
   public render() {
     if (this.state.hasError) {
-      let errorMessage = "Something went wrong.";
-      try {
-        const parsed = JSON.parse(this.state.error?.message || "");
-        if (parsed.error && parsed.operationType) {
-          errorMessage = `Firestore ${parsed.operationType} error: ${parsed.error}`;
-        }
-      } catch (e) {
-        errorMessage = this.state.error?.message || errorMessage;
-      }
-
       return (
-        <div className="min-h-screen bg-[#0A0A0A] flex items-center justify-center p-6">
-          <div className="bg-[#111] border border-red-500/20 p-8 rounded-3xl max-w-md w-full text-center space-y-6">
-            <div className="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center mx-auto">
-              <span className="text-3xl">⚠️</span>
+        <div className="min-h-screen bg-[#0A0A0A] text-white flex items-center justify-center p-6 font-sans">
+          <div className="max-w-2xl w-full bg-[#111] border border-white/10 rounded-3xl p-8 lg:p-12 shadow-2xl space-y-8">
+            <div className="flex items-center gap-4 text-red-500">
+              <div className="p-3 bg-red-500/10 rounded-2xl">
+                <AlertCircle className="w-8 h-8" />
+              </div>
+              <h1 className="text-2xl lg:text-3xl font-bold">Something went wrong</h1>
             </div>
-            <h2 className="text-2xl font-bold text-white">Application Error</h2>
-            <p className="text-gray-400 text-sm leading-relaxed">
-              {errorMessage}
+
+            <div className="space-y-4">
+              <p className="text-gray-400 leading-relaxed">
+                The application encountered an unexpected error. This might be due to a connection issue or a configuration problem.
+              </p>
+              
+              {this.state.errorInfo && (
+                <div className="bg-black/50 rounded-2xl p-6 border border-white/5 overflow-auto max-h-[40vh]">
+                  <pre className="text-xs font-mono text-red-400 whitespace-pre-wrap">
+                    {this.state.errorInfo}
+                  </pre>
+                </div>
+              )}
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-4">
+              <button
+                onClick={() => window.location.reload()}
+                className="flex-1 bg-white text-black py-4 rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-gray-100 transition-all active:scale-[0.98]"
+              >
+                <RefreshCw className="w-5 h-5" />
+                Reload Application
+              </button>
+              <button
+                onClick={() => {
+                  // Clear local storage and reload as a last resort
+                  localStorage.clear();
+                  window.location.reload();
+                }}
+                className="flex-1 bg-white/5 text-white py-4 rounded-2xl font-bold hover:bg-white/10 transition-all active:scale-[0.98]"
+              >
+                Reset & Reload
+              </button>
+            </div>
+            
+            <p className="text-center text-xs text-gray-500">
+              If the problem persists, please contact support with the error details above.
             </p>
-            <button
-              onClick={() => window.location.reload()}
-              className="w-full bg-white text-black py-3 rounded-xl font-bold hover:bg-gray-100 transition-all"
-            >
-              Reload Application
-            </button>
           </div>
         </div>
       );

@@ -100,11 +100,15 @@ export default function App() {
         } else {
           setUserProfile(data);
         }
+      } else {
+        // If profile doesn't exist yet, we might still be creating it in the other useEffect
+        // But we should stop loading if it's taking too long
       }
     }, (error) => {
       if (auth.currentUser) {
         handleFirestoreError(error, OperationType.GET, `users/${user.uid}`);
       }
+      setLoading(false); // Stop loading even on error
     });
 
     return () => unsubscribeUser();
@@ -131,6 +135,7 @@ export default function App() {
       if (auth.currentUser) {
         handleFirestoreError(error, OperationType.LIST, 'trades');
       }
+      setLoading(false); // Stop loading even on error
     });
 
     return () => unsubscribeTrades();

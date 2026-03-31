@@ -21,18 +21,14 @@ export function Auth({ onLogin }: AuthProps) {
       // Add custom parameters if needed, but keeping it simple for now
       provider.setCustomParameters({ prompt: 'select_account' });
       
-      await setPersistence(auth, browserLocalPersistence);
+      console.log("Initiating Google Login...");
       const result = await signInWithPopup(auth, provider);
+      console.log("Login result:", result.user ? "Success" : "No user");
       if (result.user) {
         onLogin();
       }
     } catch (err: any) {
-      console.error("Login Error Details:", {
-        code: err.code,
-        message: err.message,
-        customData: err.customData,
-        stack: err.stack
-      });
+      console.error("Login Error Details:", err);
 
       if (err.code === 'auth/popup-blocked') {
         setError('The login popup was blocked by your browser. Please allow popups for this site and try again.');
