@@ -1,0 +1,63 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  
+  --color-brand-50: #f0f7ff;
+  --color-brand-100: #e0effe;
+  --color-brand-200: #bae0fd;
+  --color-brand-300: #7cc8fb;
+  --color-brand-400: #38a9f8;
+  --color-brand-500: #0e8ceb;
+  --color-brand-600: #026dc7;
+  --color-brand-700: #0357a1;
+  --color-brand-800: #074a85;
+  --color-brand-900: #0c3f6e;
+  --color-brand-950: #082849;
+}
+
+@layer base {
+  body {
+    @apply bg-[#0A0A0A] text-white antialiased selection:bg-blue-500/30;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+
+  /* Custom Scrollbar for a cleaner look */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-white/10 rounded-full hover:bg-white/20 transition-colors;
+  }
+}
+
+@layer components {
+  .glass-panel {
+    @apply bg-[#111] border border-white/5 rounded-[2rem] shadow-2xl;
+  }
+  
+  .premium-card {
+    @apply relative overflow-hidden bg-[#111] border border-white/5 rounded-[2rem] transition-all duration-500 hover:border-white/10 hover:shadow-2xl hover:shadow-blue-500/5;
+  }
+
+  .stat-value {
+    @apply text-3xl font-black tracking-tighter sm:text-4xl;
+  }
+
+  .stat-label {
+    @apply text-[10px] font-black uppercase tracking-[0.2em] text-gray-500;
+  }
+}
+
+/* Smooth transitions for all interactive elements */
+* {
+  @apply transition-colors duration-200;
+}

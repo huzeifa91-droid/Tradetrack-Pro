@@ -1,0 +1,56 @@
+{
+  "entities": {
+    "User": {
+      "title": "User Profile",
+      "description": "User settings and profile information",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "displayName": { "type": "string" },
+        "riskPreference": { "type": "number", "description": "Default risk percentage per trade" },
+        "theme": { "type": "string", "enum": ["dark", "light"] },
+        "plan": { "type": "string", "enum": ["free", "premium"] },
+        "tradeCount": { "type": "integer", "description": "Number of trades made this month" },
+        "subscriptionStartDate": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "email"]
+    },
+    "Trade": {
+      "title": "Trading Record",
+      "description": "A single trade entry",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "pair": { "type": "string" },
+        "type": { "type": "string", "enum": ["buy", "sell"] },
+        "entryPrice": { "type": "number" },
+        "stopLoss": { "type": "number" },
+        "takeProfit": { "type": "number" },
+        "lotSize": { "type": "number" },
+        "timestamp": { "type": "string", "format": "date-time" },
+        "strategy": { "type": "string" },
+        "notes": { "type": "string" },
+        "screenshotUrl": { "type": "string", "format": "uri" },
+        "confidence": { "type": "number" },
+        "emotion": { "type": "string" },
+        "followedPlan": { "type": "boolean" },
+        "outcome": { "type": "string", "enum": ["win", "loss", "breakeven", "open"] },
+        "profitLoss": { "type": "number" },
+        "riskRewardRatio": { "type": "number" }
+      },
+      "required": ["userId", "pair", "type", "entryPrice", "lotSize", "timestamp"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "User profile documents"
+    },
+    "/trades/{tradeId}": {
+      "schema": "Trade",
+      "description": "Collection of all trades"
+    }
+  }
+}
