@@ -26,27 +26,27 @@ export function TradeDetail({ trade, onClose, onEdit, onDelete }: TradeDetailPro
         initial={{ scale: 0.95, opacity: 0, y: 20 }}
         animate={{ scale: 1, opacity: 1, y: 0 }}
         exit={{ scale: 0.95, opacity: 0, y: 20 }}
-        className="relative w-full max-w-3xl bg-[#111] border border-white/10 rounded-3xl shadow-2xl overflow-hidden max-h-[90vh] flex flex-col"
+        className="relative w-full max-w-3xl bg-[#111] border-x border-t sm:border border-white/10 rounded-t-[2.5rem] sm:rounded-[2.5rem] shadow-2xl overflow-hidden h-[90vh] sm:h-auto sm:max-h-[90vh] flex flex-col mt-auto sm:mt-0"
       >
         {/* Header */}
-        <div className="p-6 border-b border-white/5 flex items-center justify-between bg-[#161616]">
-          <div className="flex items-center gap-4">
-            <div className={`w-12 h-12 rounded-xl flex items-center justify-center font-bold text-lg ${
+        <div className="px-6 py-5 sm:p-6 border-b border-white/5 flex items-center justify-between bg-[#161616] shrink-0">
+          <div className="flex items-center gap-3 sm:gap-4">
+            <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center font-bold text-base sm:text-lg ${
               trade.type === 'buy' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-red-500/10 text-red-500'
             }`}>
-              {trade.type === 'buy' ? <TrendingUp /> : <TrendingDown />}
+              {trade.type === 'buy' ? <TrendingUp className="w-5 h-5 sm:w-6 sm:h-6" /> : <TrendingDown className="w-5 h-5 sm:w-6 sm:h-6" />}
             </div>
             <div>
-              <h2 className="text-2xl font-bold">{trade.pair}</h2>
-              <p className="text-xs text-gray-500 uppercase tracking-widest font-bold">{trade.strategy || 'No Strategy'}</p>
+              <h2 className="text-xl sm:text-2xl font-black tracking-tight">{trade.pair}</h2>
+              <p className="text-[10px] text-gray-500 uppercase tracking-widest font-black leading-none">{trade.strategy || 'No Strategy'}</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
             <button 
               onClick={onEdit}
-              className="bg-white/5 hover:bg-white/10 text-white px-4 py-2 rounded-xl text-sm font-semibold transition-all"
+              className="hidden sm:flex bg-white/5 hover:bg-white/10 text-white px-4 py-2 rounded-xl text-sm font-bold transition-all"
             >
-              Edit Trade
+              Edit
             </button>
             <button 
               onClick={() => {
@@ -59,19 +59,19 @@ export function TradeDetail({ trade, onClose, onEdit, onDelete }: TradeDetailPro
               <Trash2 className="w-5 h-5" />
             </button>
             <button onClick={onClose} className="p-2 hover:bg-white/5 rounded-full transition-colors">
-              <X className="w-5 h-5" />
+              <X className="w-5 h-5 text-gray-400" />
             </button>
           </div>
         </div>
 
-        <div className="p-8 overflow-y-auto space-y-8">
+        <div className="p-6 sm:p-8 overflow-y-auto space-y-8 flex-1">
           {/* Main Stats */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
             <DetailStat label="Outcome" value={trade.outcome} color={
               trade.outcome === 'win' ? 'text-emerald-500' : 
               trade.outcome === 'loss' ? 'text-red-500' : 'text-blue-500'
             } />
-            <DetailStat label="Profit/Loss" value={`$${trade.profitLoss || 0}`} color={
+            <DetailStat label="Profit/Loss" value={`${(trade.profitLoss || 0) >= 0 ? '+' : ''}${trade.profitLoss || 0}`} color={
               (trade.profitLoss || 0) >= 0 ? 'text-emerald-500' : 'text-red-500'
             } />
             <DetailStat label="Risk/Reward" value={`1:${trade.riskRewardRatio?.toFixed(2) || '0.00'}`} />

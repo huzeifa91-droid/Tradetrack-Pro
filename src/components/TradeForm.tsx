@@ -269,16 +269,16 @@ export function TradeForm({ onClose, onSubmit, initialData, accountBalance = 100
         initial={{ scale: 0.95, opacity: 0, y: 20 }}
         animate={{ scale: 1, opacity: 1, y: 0 }}
         exit={{ scale: 0.95, opacity: 0, y: 20 }}
-        className="relative w-full max-w-2xl bg-[#111] border border-white/10 rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-hidden h-[95vh] sm:h-auto sm:max-h-[90vh] flex flex-col mt-auto sm:mt-0"
+        className="relative w-full max-w-2xl bg-[#111] border-x border-t sm:border border-white/10 rounded-t-[2.5rem] sm:rounded-[2.5rem] shadow-2xl overflow-hidden h-[90vh] sm:h-auto sm:max-h-[90vh] flex flex-col mt-auto sm:mt-0"
       >
-        <div className="p-4 sm:p-6 border-b border-white/5 flex items-center justify-between bg-[#161616] sticky top-0 z-10">
-          <h2 className="text-lg sm:text-xl font-bold">{initialData ? 'Edit Trade' : 'Record New Trade'}</h2>
+        <div className="px-6 py-5 sm:p-6 border-b border-white/5 flex items-center justify-between bg-[#161616] sticky top-0 z-10 shrink-0">
+          <h2 className="text-lg sm:text-xl font-black tracking-tight">{initialData ? 'Edit Trade' : 'Record New Trade'}</h2>
           <button onClick={onClose} className="p-2 hover:bg-white/5 rounded-full transition-colors">
-            <X className="w-5 h-5" />
+            <X className="w-5 h-5 text-gray-400" />
           </button>
         </div>
 
-        <form id="trade-form" onSubmit={handleSubmit(onSubmit)} className="p-5 sm:p-8 overflow-y-auto space-y-6 sm:space-y-8 flex-1">
+        <form id="trade-form" onSubmit={handleSubmit(onSubmit)} className="p-6 sm:p-8 overflow-y-auto space-y-6 sm:space-y-8 flex-1">
           {userPlan === 'free' && tradeCount >= 5 && (
             <div className={`p-4 rounded-2xl border flex items-center gap-3 ${tradeCount >= 10 ? 'bg-red-500/10 border-red-500/20 text-red-500' : 'bg-yellow-500/10 border-yellow-500/20 text-yellow-500'}`}>
               <AlertCircle className="w-5 h-5 flex-shrink-0" />

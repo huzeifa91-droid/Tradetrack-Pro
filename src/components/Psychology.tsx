@@ -33,45 +33,45 @@ export function Psychology({ trades }: PsychologyProps) {
 
   return (
     <div className="space-y-8">
-      <h1 className="text-3xl font-bold">Psychology Tracker</h1>
+      <h1 className="text-2xl sm:text-3xl font-black tracking-tight">Psychology Tracker</h1>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
         {/* Discipline Analysis */}
-        <div className="bg-[#111] border border-white/5 rounded-3xl p-8">
-          <h3 className="text-lg font-semibold mb-6 flex items-center gap-2">
+        <div className="bg-[#111] border border-white/5 rounded-3xl p-6 sm:p-8">
+          <h3 className="text-base sm:text-lg font-black tracking-tight mb-6 flex items-center gap-2">
             <CheckCircle2 className="w-5 h-5 text-blue-500" /> Discipline Analysis
           </h3>
-          <div className="space-y-6">
-            <div className="p-6 bg-white/5 rounded-2xl border border-white/5">
-              <div className="flex justify-between items-center mb-4">
-                <span className="text-gray-400">Followed Plan</span>
-                <span className="text-emerald-500 font-bold">{winRateFollowed.toFixed(1)}% Win Rate</span>
+          <div className="space-y-4 sm:space-y-6">
+            <div className="p-4 sm:p-6 bg-white/5 rounded-2xl border border-white/5">
+              <div className="flex justify-between items-center mb-3 sm:mb-4">
+                <span className="text-gray-400 text-sm">Followed Plan</span>
+                <span className="text-emerald-500 font-black text-sm">{winRateFollowed.toFixed(1)}% Win Rate</span>
               </div>
-              <div className="h-2 bg-white/5 rounded-full overflow-hidden">
-                <div className="h-full bg-emerald-500" style={{ width: `${winRateFollowed}%` }}></div>
+              <div className="h-1.5 sm:h-2 bg-white/5 rounded-full overflow-hidden">
+                <div className="h-full bg-emerald-500 transition-all duration-1000" style={{ width: `${winRateFollowed}%` }}></div>
               </div>
-              <p className="text-xs text-gray-500 mt-2">{followedPlanTrades.length} trades followed the plan</p>
+              <p className="text-[10px] text-gray-500 mt-2 font-medium">{followedPlanTrades.length} trades followed the plan</p>
             </div>
 
-            <div className="p-6 bg-white/5 rounded-2xl border border-white/5">
-              <div className="flex justify-between items-center mb-4">
-                <span className="text-gray-400">Broke Plan</span>
-                <span className="text-red-500 font-bold">{winRateBroken.toFixed(1)}% Win Rate</span>
+            <div className="p-4 sm:p-6 bg-white/5 rounded-2xl border border-white/5">
+              <div className="flex justify-between items-center mb-3 sm:mb-4">
+                <span className="text-gray-400 text-sm">Broke Plan</span>
+                <span className="text-red-500 font-black text-sm">{winRateBroken.toFixed(1)}% Win Rate</span>
               </div>
-              <div className="h-2 bg-white/5 rounded-full overflow-hidden">
-                <div className="h-full bg-red-500" style={{ width: `${winRateBroken}%` }}></div>
+              <div className="h-1.5 sm:h-2 bg-white/5 rounded-full overflow-hidden">
+                <div className="h-full bg-red-500 transition-all duration-1000" style={{ width: `${winRateBroken}%` }}></div>
               </div>
-              <p className="text-xs text-gray-500 mt-2">{brokenPlanTrades.length} trades broke the plan</p>
+              <p className="text-[10px] text-gray-500 mt-2 font-medium">{brokenPlanTrades.length} trades broke the plan</p>
             </div>
           </div>
         </div>
 
         {/* AI Insights */}
-        <div className="bg-[#111] border border-white/5 rounded-3xl p-8">
-          <h3 className="text-lg font-semibold mb-6 flex items-center gap-2">
+        <div className="bg-[#111] border border-white/5 rounded-3xl p-6 sm:p-8">
+          <h3 className="text-base sm:text-lg font-black tracking-tight mb-6 flex items-center gap-2">
             <Brain className="w-5 h-5 text-purple-500" /> AI Insights
           </h3>
-          <div className="space-y-4">
+          <div className="space-y-3 sm:space-y-4">
             {winRateFollowed > winRateBroken && (
               <InsightCard 
                 type="success"
@@ -105,9 +105,9 @@ export function Psychology({ trades }: PsychologyProps) {
       </div>
 
       {/* Emotion Performance */}
-      <div className="bg-[#111] border border-white/5 rounded-3xl p-8">
-        <h3 className="text-lg font-semibold mb-8">Performance by Emotion</h3>
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
+      <div className="bg-[#111] border border-white/5 rounded-3xl p-6 sm:p-8">
+        <h3 className="text-base sm:text-lg font-black tracking-tight mb-8">Performance by Emotion</h3>
+        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3 sm:gap-4">
           {EMOTIONS.map(emotion => {
             const stats = emotionPerformance.find(e => e.emotion === emotion);
             return (

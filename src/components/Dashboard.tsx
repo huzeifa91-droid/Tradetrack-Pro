@@ -232,7 +232,7 @@ export function Dashboard({ trades, onAddTrade, user, onUpgrade }: DashboardProp
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
         <div>
           <div className="flex items-center gap-3">
-            <h1 className="text-3xl lg:text-5xl font-black tracking-tighter">Welcome, {user?.displayName?.split(' ')[0] || 'Trader'}</h1>
+            <h1 className="text-2xl sm:text-3xl lg:text-5xl font-black tracking-tighter">Welcome, {user?.displayName?.split(' ')[0] || 'Trader'}</h1>
             {user?.plan === 'premium' && (
               <div className="flex items-center gap-1.5 bg-yellow-500/10 text-yellow-500 px-3 py-1 rounded-full border border-yellow-500/20 shadow-lg shadow-yellow-500/5">
                 <Crown className="w-3.5 h-3.5" />
@@ -269,21 +269,21 @@ export function Dashboard({ trades, onAddTrade, user, onUpgrade }: DashboardProp
           animate={{ opacity: 1, scale: 1 }}
           className="grid grid-cols-1 lg:grid-cols-3 gap-8"
         >
-          <div className="lg:col-span-2 premium-card p-8 lg:p-10 flex flex-col lg:flex-row items-center justify-between gap-10 group">
+          <div className="lg:col-span-2 premium-card p-5 sm:p-8 lg:p-10 flex flex-col lg:flex-row items-center justify-between gap-6 sm:gap-10 group">
             <div className="absolute top-0 right-0 w-96 h-96 bg-blue-500/5 blur-[120px] -z-10 group-hover:bg-blue-500/10 transition-all duration-1000" />
             
-            <div className="space-y-6 flex-1 w-full relative z-10">
+            <div className="space-y-4 sm:space-y-6 flex-1 w-full relative z-10">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="p-2 bg-blue-500/10 rounded-xl">
                     <Info className="w-5 h-5 text-blue-500" />
                   </div>
-                  <h3 className="font-black text-xs uppercase tracking-[0.2em] text-gray-400">
+                  <h3 className="font-black text-[10px] sm:text-xs uppercase tracking-[0.2em] text-gray-400">
                     {user.tradeCount >= 10 ? 'Monthly Limit Reached' : 'Monthly Trade Limit'}
                   </h3>
                 </div>
-                <span className={`text-lg font-black tracking-tighter ${user.tradeCount >= 10 ? 'text-red-500' : 'text-white'}`}>
-                  {user.tradeCount || 0} <span className="text-gray-500 text-sm">/ 10</span>
+                <span className={`text-base sm:text-lg font-black tracking-tighter ${user.tradeCount >= 10 ? 'text-red-500' : 'text-white'}`}>
+                  {user.tradeCount || 0} <span className="text-gray-500 text-xs sm:text-sm">/ 10</span>
                 </span>
               </div>
               <div className="h-4 bg-white/5 rounded-full overflow-hidden p-1 border border-white/5">
@@ -345,7 +345,7 @@ export function Dashboard({ trades, onAddTrade, user, onUpgrade }: DashboardProp
       )}
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-8">
         <StatCard 
           label="Total Profit" 
           value={`$${totalProfit.toLocaleString()}`}
@@ -379,23 +379,23 @@ export function Dashboard({ trades, onAddTrade, user, onUpgrade }: DashboardProp
       {/* Charts & Insights Section */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
         {/* Equity Curve */}
-        <div className="lg:col-span-2 premium-card p-8 lg:p-10 relative overflow-hidden group">
+        <div className="lg:col-span-2 premium-card p-5 sm:p-8 lg:p-10 relative overflow-hidden group">
           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500/50 via-purple-500/50 to-blue-500/50" />
-          <div className="flex items-center justify-between mb-10">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-8 sm:mb-10 gap-4">
             <div className="space-y-1">
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-blue-500/10 rounded-xl">
                   <BarChart3 className="w-5 h-5 text-blue-500" />
                 </div>
-                <h3 className="text-xl font-black tracking-tighter">Equity Curve</h3>
+                <h3 className="text-lg sm:text-xl font-black tracking-tighter">Equity Curve</h3>
               </div>
-              <p className="text-gray-500 text-sm font-medium">Cumulative profit over time</p>
+              <p className="text-gray-500 text-xs sm:text-sm font-medium">Cumulative profit over time</p>
             </div>
-            <div className="flex items-center gap-2 bg-white/5 p-1 rounded-xl border border-white/5">
+            <div className="flex items-center gap-1 bg-white/5 p-1 rounded-xl border border-white/5 self-start sm:self-center overflow-x-auto max-w-full">
               {['7D', '1M', '3M', 'ALL'].map((range) => (
                 <button 
                   key={range}
-                  className={`px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${
+                  className={`px-3 sm:px-4 py-2 rounded-lg text-[9px] sm:text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${
                     range === 'ALL' ? 'bg-white text-black shadow-lg' : 'text-gray-500 hover:text-white'
                   }`}
                 >
@@ -405,7 +405,7 @@ export function Dashboard({ trades, onAddTrade, user, onUpgrade }: DashboardProp
             </div>
           </div>
           
-          <div className="h-[400px] w-full relative">
+          <div className="h-[250px] sm:h-[400px] w-full relative">
             {user?.plan === 'free' ? (
               <LockedFeature 
                 featureName="Advanced Analytics" 
@@ -466,17 +466,17 @@ export function Dashboard({ trades, onAddTrade, user, onUpgrade }: DashboardProp
         </div>
 
         {/* AI Behavioral Insights */}
-        <div className="premium-card p-8 lg:p-10 flex flex-col relative overflow-hidden group">
+        <div className="premium-card p-5 sm:p-8 lg:p-10 flex flex-col relative overflow-hidden group">
           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-purple-500/50 via-blue-500/50 to-purple-500/50" />
-          <div className="flex items-center justify-between mb-10">
+          <div className="flex items-center justify-between mb-8 sm:mb-10">
             <div className="space-y-1">
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-purple-500/10 rounded-xl">
                   <Brain className="w-5 h-5 text-purple-500" />
                 </div>
-                <h3 className="text-xl font-black tracking-tighter">Smart Insights</h3>
+                <h3 className="text-lg sm:text-xl font-black tracking-tighter">Smart Insights</h3>
               </div>
-              <p className="text-gray-500 text-sm font-medium">AI-driven behavior analysis</p>
+              <p className="text-gray-500 text-xs sm:text-sm font-medium">AI-driven behavior analysis</p>
             </div>
             <div className="p-2 bg-white/5 rounded-xl border border-white/5">
               <Zap className="w-4 h-4 text-yellow-500 animate-pulse" />

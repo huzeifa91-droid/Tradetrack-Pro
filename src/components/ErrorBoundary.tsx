@@ -11,12 +11,15 @@ interface State {
   errorInfo: string | null;
 }
 
-export class ErrorBoundary extends Component<Props, State> {
-  public state: State = {
-    hasError: false,
-    error: null,
-    errorInfo: null
-  };
+export class ErrorBoundary extends React.Component<Props, State> {
+  constructor(props: Props) {
+    super(props);
+    this.state = {
+      hasError: false,
+      error: null,
+      errorInfo: null
+    };
+  }
 
   public static getDerivedStateFromError(error: Error): State {
     return { hasError: true, error, errorInfo: null };
@@ -34,7 +37,6 @@ export class ErrorBoundary extends Component<Props, State> {
     }
 
     this.setState({
-      error,
       errorInfo: typeof detailedInfo === 'object' ? JSON.stringify(detailedInfo, null, 2) : String(detailedInfo)
     });
   }
@@ -42,30 +44,30 @@ export class ErrorBoundary extends Component<Props, State> {
   public render() {
     if (this.state.hasError) {
       return (
-        <div className="min-h-screen bg-[#0A0A0A] text-white flex items-center justify-center p-6 font-sans">
-          <div className="max-w-2xl w-full bg-[#111] border border-white/10 rounded-3xl p-8 lg:p-12 shadow-2xl space-y-8">
+        <div className="min-h-screen bg-[#0A0A0A] text-white flex items-center justify-center p-4 sm:p-6 font-sans">
+          <div className="max-w-2xl w-full bg-[#111] border border-white/10 rounded-[2rem] p-6 sm:p-10 shadow-2xl space-y-6 sm:space-y-8">
             <div className="flex items-center gap-4 text-red-500">
               <div className="p-3 bg-red-500/10 rounded-2xl">
                 <AlertCircle className="w-8 h-8" />
               </div>
-              <h1 className="text-2xl lg:text-3xl font-bold">Something went wrong</h1>
+              <h1 className="text-xl sm:text-2xl lg:text-3xl font-black tracking-tight">Something went wrong</h1>
             </div>
 
             <div className="space-y-4">
-              <p className="text-gray-400 leading-relaxed">
+              <p className="text-gray-400 text-sm sm:text-base leading-relaxed">
                 The application encountered an unexpected error. This might be due to a connection issue or a configuration problem.
               </p>
               
               {this.state.errorInfo && (
-                <div className="bg-black/50 rounded-2xl p-6 border border-white/5 overflow-auto max-h-[40vh]">
-                  <pre className="text-xs font-mono text-red-400 whitespace-pre-wrap">
+                <div className="bg-black/50 rounded-2xl p-4 sm:p-6 border border-white/5 overflow-auto max-h-[30vh]">
+                  <pre className="text-[10px] sm:text-xs font-mono text-red-400 whitespace-pre-wrap">
                     {this.state.errorInfo}
                   </pre>
                 </div>
               )}
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
               <button
                 onClick={() => window.location.reload()}
                 className="flex-1 bg-white text-black py-4 rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-gray-100 transition-all active:scale-[0.98]"
@@ -75,7 +77,6 @@ export class ErrorBoundary extends Component<Props, State> {
               </button>
               <button
                 onClick={() => {
-                  // Clear local storage and reload as a last resort
                   localStorage.clear();
                   window.location.reload();
                 }}
@@ -85,7 +86,7 @@ export class ErrorBoundary extends Component<Props, State> {
               </button>
             </div>
             
-            <p className="text-center text-xs text-gray-500">
+            <p className="text-center text-[10px] sm:text-xs text-gray-500 font-medium">
               If the problem persists, please contact support with the error details above.
             </p>
           </div>

@@ -243,7 +243,7 @@ export function Layout({ children, activeTab, setActiveTab, user, onAddTrade }: 
           </div>
         </header>
         
-        <div className="px-6 lg:px-12 py-8 max-w-7xl mx-auto">
+        <div className="px-4 sm:px-8 lg:px-12 py-8 max-w-7xl mx-auto">
           {children}
         </div>
       </div>

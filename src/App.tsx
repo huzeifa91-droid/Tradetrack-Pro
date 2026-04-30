@@ -270,7 +270,7 @@ export default function App() {
     <div className="min-h-screen bg-[#0A0A0A] text-white font-sans selection:bg-blue-500/30">
       <Toaster position="top-right" theme="dark" richColors />
       <Layout activeTab={activeTab} setActiveTab={setActiveTab} user={userProfile} onAddTrade={() => setIsTradeModalOpen(true)}>
-        <main className="p-4 lg:p-8 max-w-7xl mx-auto">
+        <main className="max-w-7xl mx-auto">
           <AnimatePresence mode="wait">
             <motion.div
               key={activeTab}
