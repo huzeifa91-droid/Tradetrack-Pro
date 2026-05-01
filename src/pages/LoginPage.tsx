@@ -31,7 +31,13 @@ export default function LoginPage() {
       navigate('/dashboard');
     } catch (err: any) {
       console.error('Google login error:', err);
-      toast.error(err.message || 'Failed to sign in');
+      if (err.code === 'auth/account-exists-with-different-credential') {
+        toast.error('An account already exists with this email using a different sign-in method. Please use your email and password to sign in.', { duration: 6000 });
+        setIsSignUp(false);
+      } else {
+        const cleanMessage = err.message?.replace(/Firebase: Error \(auth\/.*\)\.?/, '').trim() || 'Failed to sign in';
+        toast.error(cleanMessage);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -54,7 +60,7 @@ export default function LoginPage() {
     try {
       if (isSignUp) {
         await signUpWithEmail(email, password);
-        toast.success('Account created successfully');
+        toast.success('Account created! A verification email has been sent to your inbox.', { duration: 6000 });
       } else {
         await loginWithEmail(email, password);
         toast.success('Logged in successfully');
@@ -62,13 +68,30 @@ export default function LoginPage() {
       navigate('/dashboard');
     } catch (err: any) {
       console.error('Email auth error:', err);
-      if (err.code === 'auth/email-already-in-use') {
-        toast.error('This email is already registered. If you signed up with Google, please log in or reset your password.');
-        setIsSignUp(false);
-      } else if (err.code === 'auth/wrong-password') {
-        toast.error('Incorrect password. If you signed up with Google, please use the "Continue with Google" button or reset your password.');
-      } else {
-        toast.error(err.message || 'Authentication failed');
+      const errorCode = err.code || '';
+      
+      switch (errorCode) {
+        case 'auth/email-already-in-use':
+          toast.error('This email is already registered. We\'ve switched you to Sign In mode.', { duration: 5000 });
+          setIsSignUp(false);
+          break;
+        case 'auth/wrong-password':
+          toast.error('Incorrect password. If you originally signed up with Google, use "Continue with Google" or reset your password.', { duration: 6000 });
+          break;
+        case 'auth/user-not-found':
+          toast.error('No account found with this email. Would you like to create one?', { duration: 5000 });
+          setIsSignUp(true);
+          break;
+        case 'auth/invalid-email':
+          toast.error('Please enter a valid email address.');
+          break;
+        case 'auth/too-many-requests':
+          toast.error('Too many failed attempts. Please try again later or reset your password.');
+          break;
+        default:
+          // Strip "Firebase: Error (auth/xxxxx)." prefix if it exists for a cleaner look
+          const cleanMessage = err.message?.replace(/Firebase: Error \(auth\/.*\)\.?/, '').trim() || 'Authentication failed';
+          toast.error(cleanMessage);
       }
     } finally {
       setIsLoading(false);

@@ -18,13 +18,14 @@ import {
 } from 'firebase/firestore';
 import { auth, db, OperationType, handleFirestoreError } from './firebase';
 import { Trade, UserProfile } from './types';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, Mail, RotateCw } from 'lucide-react';
 import { Layout } from './components/Layout';
 import { TradeForm } from './components/TradeForm';
 import { TradeDetail } from './components/TradeDetail';
 import { motion, AnimatePresence } from 'motion/react';
 import { Toaster, toast } from 'sonner';
 import { Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
+import { resendVerificationEmail } from './services/authService';
 
 // Import Pages
 import Home from './pages/Home';
@@ -47,8 +48,33 @@ export default function App() {
   const [editingTrade, setEditingTrade] = useState<Trade | null>(null);
   const [selectedTrade, setSelectedTrade] = useState<Trade | null>(null);
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+  const [isResending, setIsResending] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
+
+  const handleResendVerification = async () => {
+    setIsResending(true);
+    try {
+      await resendVerificationEmail();
+      toast.success('Verification email sent! Check your inbox.');
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to resend verification email');
+    } finally {
+      setIsResending(false);
+    }
+  };
+
+  const handleCheckVerification = async () => {
+    if (auth.currentUser) {
+      await auth.currentUser.reload();
+      setUser({ ...auth.currentUser });
+      if (auth.currentUser.emailVerified) {
+        toast.success('Email verified successfully!');
+      } else {
+        toast.error('Email not verified yet. Please check your inbox.');
+      }
+    }
+  };
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
@@ -221,6 +247,39 @@ export default function App() {
     return (
       <Layout user={userProfile} onAddTrade={() => setIsTradeModalOpen(true)}>
         <AnimatePresence mode="wait">
+          {user && !user.emailVerified && (
+            <motion.div 
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              className="bg-brand-500/10 border-b border-brand-500/20 px-8 py-3 flex flex-col sm:flex-row items-center justify-between gap-4"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full bg-brand-500/20 flex items-center justify-center text-brand-500">
+                  <Mail className="w-4 h-4" />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-text-100">Verify your email address</p>
+                  <p className="text-xs text-text-200">Please check your inbox at <span className="font-bold text-brand-500">{user.email}</span> to verify your account.</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <button 
+                  onClick={handleResendVerification}
+                  disabled={isResending}
+                  className="px-4 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider text-brand-500 hover:bg-brand-500/10 transition-colors disabled:opacity-50"
+                >
+                  {isResending ? 'Sending...' : 'Resend Email'}
+                </button>
+                <button 
+                  onClick={handleCheckVerification}
+                  className="px-4 py-1.5 rounded-lg bg-brand-500 text-white text-xs font-bold uppercase tracking-wider hover:bg-brand-600 transition-colors flex items-center gap-2"
+                >
+                  <RotateCw className="w-3.5 h-3.5" />
+                  I've Verified
+                </button>
+              </div>
+            </motion.div>
+          )}
           <motion.div
             key={location.pathname}
             initial={{ opacity: 0, y: 10 }}

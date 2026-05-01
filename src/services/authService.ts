@@ -5,7 +5,8 @@ import {
   createUserWithEmailAndPassword,
   signOut,
   fetchSignInMethodsForEmail,
-  sendPasswordResetEmail
+  sendPasswordResetEmail,
+  sendEmailVerification
 } from 'firebase/auth';
 import { auth } from '../firebase';
 
@@ -19,7 +20,18 @@ export const loginWithEmail = async (email: string, password: string) => {
 };
 
 export const signUpWithEmail = async (email: string, password: string) => {
-  return createUserWithEmailAndPassword(auth, email, password);
+  const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+  if (userCredential.user) {
+    await sendEmailVerification(userCredential.user);
+  }
+  return userCredential;
+};
+
+export const resendVerificationEmail = async () => {
+  if (auth.currentUser) {
+    return sendEmailVerification(auth.currentUser);
+  }
+  throw new Error("No user logged in");
 };
 
 export const resetPassword = async (email: string) => {
