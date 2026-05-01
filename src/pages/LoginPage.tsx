@@ -13,11 +13,12 @@ import {
   AlertCircle
 } from 'lucide-react';
 import { toast } from 'sonner';
-import { loginWithGoogle, loginWithEmail, signUpWithEmail } from '../services/authService';
+import { loginWithGoogle, loginWithEmail, signUpWithEmail, resetPassword } from '../services/authService';
 
 export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
@@ -38,6 +39,12 @@ export default function LoginPage() {
 
   const handleEmailAuth = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!isSignUp && showForgotPassword) {
+      handleResetPassword();
+      return;
+    }
+
     if (password.length < 6) {
       toast.error('Password must be at least 6 characters long');
       return;
@@ -55,7 +62,32 @@ export default function LoginPage() {
       navigate('/dashboard');
     } catch (err: any) {
       console.error('Email auth error:', err);
-      toast.error(err.message || 'Authentication failed');
+      if (err.code === 'auth/email-already-in-use') {
+        toast.error('This email is already registered. If you signed up with Google, please log in or reset your password.');
+        setIsSignUp(false);
+      } else if (err.code === 'auth/wrong-password') {
+        toast.error('Incorrect password. If you signed up with Google, please use the "Continue with Google" button or reset your password.');
+      } else {
+        toast.error(err.message || 'Authentication failed');
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleResetPassword = async () => {
+    if (!email) {
+      toast.error('Please enter your email address first');
+      return;
+    }
+    setIsLoading(true);
+    try {
+      await resetPassword(email);
+      toast.success('Password reset link sent! Check your inbox to set/change your password.');
+      setShowForgotPassword(false);
+    } catch (err: any) {
+      console.error('Reset password error:', err);
+      toast.error(err.message || 'Failed to send reset link');
     } finally {
       setIsLoading(false);
     }
@@ -114,10 +146,12 @@ export default function LoginPage() {
         >
           <div className="space-y-4 mb-10">
             <h3 className="text-3xl font-semibold tracking-tight">
-              {isSignUp ? 'Create Account' : 'Sign In'}
+              {showForgotPassword ? 'Reset Password' : (isSignUp ? 'Create Account' : 'Sign In')}
             </h3>
             <p className="text-text-200 text-sm font-medium">
-              {isSignUp ? 'Start your professional trading journal today.' : 'Welcome back to your trading journal.'}
+              {showForgotPassword 
+                ? 'We will send you a link to set a new password.'
+                : (isSignUp ? 'Start your professional trading journal today.' : 'Welcome back to your trading journal.')}
             </p>
           </div>
 
@@ -156,23 +190,34 @@ export default function LoginPage() {
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <label className="text-[11px] font-bold uppercase tracking-wider text-text-200 ml-1">Password</label>
-                <div className="relative">
-                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-text-200" />
-                  <input 
-                    type="password"
-                    required
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="••••••••"
-                    className="w-full bg-surface-200 border border-border-subtle rounded-xl py-3.5 pl-11 pr-4 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none transition-all text-sm font-medium"
-                  />
+              {!showForgotPassword && (
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between ml-1">
+                    <label className="text-[11px] font-bold uppercase tracking-wider text-text-200">Password</label>
+                    <button 
+                      type="button"
+                      onClick={() => setShowForgotPassword(true)}
+                      className="text-[10px] font-bold text-brand-500 hover:text-brand-600 uppercase tracking-wider"
+                    >
+                      Forgot?
+                    </button>
+                  </div>
+                  <div className="relative">
+                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-text-200" />
+                    <input 
+                      type="password"
+                      required={!showForgotPassword}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="••••••••"
+                      className="w-full bg-surface-200 border border-border-subtle rounded-xl py-3.5 pl-11 pr-4 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none transition-all text-sm font-medium"
+                    />
+                  </div>
+                  {password.length > 0 && password.length < 6 && (
+                    <p className="text-[10px] text-red-500 font-semibold ml-1">Min 6 characters required</p>
+                  )}
                 </div>
-                {password.length > 0 && password.length < 6 && (
-                  <p className="text-[10px] text-red-500 font-semibold ml-1">Min 6 characters required</p>
-                )}
-              </div>
+              )}
 
               <button 
                 type="submit"
@@ -183,21 +228,30 @@ export default function LoginPage() {
                   <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
                 ) : (
                   <>
-                    {isSignUp ? <UserPlus className="w-5 h-5" /> : <LogIn className="w-5 h-5" />}
-                    <span>{isSignUp ? 'Create Account' : 'Sign In'}</span>
+                    {showForgotPassword ? <Mail className="w-5 h-5" /> : (isSignUp ? <UserPlus className="w-5 h-5" /> : <LogIn className="w-5 h-5" />)}
+                    <span>{showForgotPassword ? 'Send Reset Link' : (isSignUp ? 'Create Account' : 'Sign In')}</span>
                   </>
                 )}
               </button>
             </form>
 
-            <div className="text-center">
-              <button 
-                onClick={() => setIsSignUp(!isSignUp)}
-                className="text-sm font-bold text-brand-500 hover:text-brand-600 transition-colors"
-                disabled={isLoading}
-              >
-                {isSignUp ? "Already have an account? Sign In" : "Don't have an account? Create one"}
-              </button>
+            <div className="text-center space-y-3">
+              {showForgotPassword ? (
+                <button 
+                  onClick={() => setShowForgotPassword(false)}
+                  className="text-sm font-bold text-text-200 hover:text-brand-500 transition-colors"
+                >
+                  Back to Sign In
+                </button>
+              ) : (
+                <button 
+                  onClick={() => setIsSignUp(!isSignUp)}
+                  className="text-sm font-bold text-brand-500 hover:text-brand-600 transition-colors"
+                  disabled={isLoading}
+                >
+                  {isSignUp ? "Already have an account? Sign In" : "Don't have an account? Create one"}
+                </button>
+              )}
             </div>
           </div>
 
