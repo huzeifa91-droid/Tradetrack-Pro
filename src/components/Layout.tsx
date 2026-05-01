@@ -8,10 +8,8 @@ import {
   Settings, 
   LogOut,
   Plus,
-  TrendingUp,
   Menu,
   X,
-  User,
   CreditCard,
   Crown
 } from 'lucide-react';
@@ -20,49 +18,51 @@ import { signOut } from 'firebase/auth';
 import { UserProfile } from '../types';
 import { motion, AnimatePresence } from 'motion/react';
 import { toast } from 'sonner';
+import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 
 interface LayoutProps {
-  children: React.ReactNode;
-  activeTab: string;
-  setActiveTab: (tab: string) => void;
+  children?: React.ReactNode;
   user: UserProfile | null;
   onAddTrade: () => void;
 }
 
-export function Layout({ children, activeTab, setActiveTab, user, onAddTrade }: LayoutProps) {
+export function Layout({ children, user, onAddTrade }: LayoutProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const navItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { id: 'history', label: 'Trades', icon: History },
-    { id: 'calendar', label: 'Calendar', icon: Calendar },
-    { id: 'analytics', label: 'Analytics', icon: BarChart3 },
-    { id: 'psychology', label: 'Psychology', icon: Brain },
-    { id: 'pricing', label: 'Pricing', icon: CreditCard },
-    { id: 'settings', label: 'Settings', icon: Settings },
+    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, path: '/dashboard' },
+    { id: 'history', label: 'Trades', icon: History, path: '/history' },
+    { id: 'calendar', label: 'Calendar', icon: Calendar, path: '/calendar' },
+    { id: 'analytics', label: 'Analytics', icon: BarChart3, path: '/analytics' },
+    { id: 'psychology', label: 'Psychology', icon: Brain, path: '/psychology' },
+    { id: 'pricing', label: 'Pricing', icon: CreditCard, path: '/pricing' },
+    { id: 'settings', label: 'Settings', icon: Settings, path: '/settings' },
   ];
 
   const bottomNavItems = [
-    { id: 'dashboard', label: 'Home', icon: LayoutDashboard },
-    { id: 'history', label: 'Trades', icon: History },
+    { id: 'dashboard', label: 'Home', icon: LayoutDashboard, path: '/dashboard' },
+    { id: 'history', label: 'Trades', icon: History, path: '/history' },
     { id: 'add', label: 'Add', icon: Plus, isAction: true },
-    { id: 'analytics', label: 'Stats', icon: BarChart3 },
-    { id: 'settings', label: 'Settings', icon: Settings },
+    { id: 'analytics', label: 'Stats', icon: BarChart3, path: '/analytics' },
+    { id: 'settings', label: 'Settings', icon: Settings, path: '/settings' },
   ];
-
-  const handleNavClick = (id: string) => {
-    setActiveTab(id);
-    setIsMenuOpen(false);
-  };
 
   const handleSignOut = async () => {
     try {
       await signOut(auth);
       toast.success('Signed out successfully');
+      navigate('/');
     } catch (error) {
       console.error('Logout error:', error);
       toast.error('Failed to sign out. Please try again.');
     }
+  };
+
+  const getPageTitle = () => {
+    const item = navItems.find(i => i.path === location.pathname);
+    return item ? item.label : 'App';
   };
 
   return (
@@ -70,9 +70,9 @@ export function Layout({ children, activeTab, setActiveTab, user, onAddTrade }: 
       {/* Desktop Sidebar */}
       <aside className="hidden lg:flex w-72 bg-surface-200 border-r border-border-subtle flex-col fixed h-full z-20">
         <div className="p-8 flex items-center gap-4">
-          <div className="w-12 h-12 bg-surface-300 rounded-xl flex items-center justify-center group cursor-pointer overflow-hidden border border-border-subtle">
+          <NavLink to="/" className="w-12 h-12 bg-surface-300 rounded-xl flex items-center justify-center group cursor-pointer overflow-hidden border border-border-subtle">
             <img src="/favicon.svg" alt="TradeTrack Pro" className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
-          </div>
+          </NavLink>
           <div>
             <h1 className="text-xl font-semibold tracking-tight text-text-100">TradeTrack<span className="text-brand-500">Pro</span></h1>
             <div className="flex items-center gap-1">
@@ -84,24 +84,24 @@ export function Layout({ children, activeTab, setActiveTab, user, onAddTrade }: 
 
         <nav className="flex-1 px-6 py-4 space-y-2 overflow-y-auto">
           {navItems.map((item) => (
-            <button
+            <NavLink
               key={item.id}
-              onClick={() => handleNavClick(item.id)}
-              className={`w-full flex items-center gap-4 px-5 py-3 rounded-xl transition-all duration-200 group ${
-                activeTab === item.id 
+              to={item.path}
+              className={({ isActive }) => `w-full flex items-center gap-4 px-5 py-3 rounded-xl transition-all duration-200 group ${
+                isActive 
                   ? 'bg-brand-500 text-white font-semibold' 
                   : 'text-text-200 hover:text-text-100 hover:bg-surface-300'
               }`}
             >
-              <item.icon className={`w-5 h-5 ${activeTab === item.id ? 'opacity-100' : 'opacity-70 group-hover:opacity-100'}`} />
+              <item.icon className="w-5 h-5" />
               <span className="text-sm font-medium tracking-tight">{item.label}</span>
-              {activeTab === item.id && (
+              {location.pathname === item.path && (
                 <motion.div 
-                  layoutId="activeNav"
-                  className="ml-auto w-1 h-1 bg-white rounded-full"
+                   layoutId="activeNav"
+                   className="ml-auto w-1 h-1 bg-white rounded-full"
                 />
               )}
-            </button>
+            </NavLink>
           ))}
         </nav>
 
@@ -141,11 +141,11 @@ export function Layout({ children, activeTab, setActiveTab, user, onAddTrade }: 
       </aside>
 
       {/* Mobile Top Header */}
-        <header className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-surface-100/80 backdrop-blur-xl border-b border-border-subtle z-40 px-6 flex items-center justify-between">
+      <header className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-surface-100/80 backdrop-blur-xl border-b border-border-subtle z-40 px-6 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 bg-surface-200 rounded-lg flex items-center justify-center overflow-hidden border border-border-subtle">
+          <NavLink to="/" className="w-9 h-9 bg-surface-200 rounded-lg flex items-center justify-center overflow-hidden border border-border-subtle">
             <img src="/favicon.svg" alt="TradeTrack Pro" className="w-full h-full object-cover" />
-          </div>
+          </NavLink>
           <h1 className="text-lg font-semibold tracking-tight">TradeTrack<span className="text-brand-500">Pro</span></h1>
         </div>
         <button 
@@ -167,43 +167,44 @@ export function Layout({ children, activeTab, setActiveTab, user, onAddTrade }: 
               onClick={() => setIsMenuOpen(false)}
               className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 lg:hidden"
             />
-              <motion.div 
-                initial={{ x: '100%' }}
-                animate={{ x: 0 }}
-                exit={{ x: '100%' }}
-                transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-                className="fixed top-0 right-0 bottom-0 w-[300px] bg-surface-200 z-[60] lg:hidden flex flex-col border-l border-border-subtle shadow-2xl"
-              >
-                <div className="p-8 flex items-center justify-between border-b border-border-subtle">
-                  <h2 className="text-2xl font-black tracking-tighter text-text-100">Menu</h2>
-                  <button onClick={() => setIsMenuOpen(false)} className="w-10 h-10 flex items-center justify-center bg-surface-300 rounded-xl text-text-200">
-                    <X className="w-6 h-6" />
-                  </button>
-                </div>
+            <motion.div 
+              initial={{ x: '100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '100%' }}
+              transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+              className="fixed top-0 right-0 bottom-0 w-[300px] bg-surface-200 z-[60] lg:hidden flex flex-col border-l border-border-subtle shadow-2xl"
+            >
+              <div className="p-8 flex items-center justify-between border-b border-border-subtle">
+                <h2 className="text-2xl font-black tracking-tighter text-text-100">Menu</h2>
+                <button onClick={() => setIsMenuOpen(false)} className="w-10 h-10 flex items-center justify-center bg-surface-300 rounded-xl text-text-200">
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
               
-            <nav className="flex-1 p-6 space-y-3">
+              <nav className="flex-1 p-6 space-y-3">
                 {navItems.map((item) => (
-                  <button
+                  <NavLink
                     key={item.id}
-                    onClick={() => handleNavClick(item.id)}
-                    className={`w-full flex items-center gap-4 px-6 py-5 rounded-[2rem] transition-all ${
-                      activeTab === item.id 
-                        ? 'bg-blue-600 text-white shadow-2xl shadow-blue-600/30 font-bold' 
+                    to={item.path}
+                    onClick={() => setIsMenuOpen(false)}
+                    className={({ isActive }) => `w-full flex items-center gap-4 px-6 py-4 rounded-2xl transition-all ${
+                      isActive 
+                        ? 'bg-brand-500 text-white shadow-lg' 
                         : 'text-text-200 hover:bg-surface-300'
                     }`}
                   >
                     <item.icon className="w-6 h-6" />
-                    <span className="text-xl font-medium tracking-tight">{item.label}</span>
-                  </button>
+                    <span className="text-lg font-medium tracking-tight">{item.label}</span>
+                  </NavLink>
                 ))}
               </nav>
 
               <div className="p-8 border-t border-border-subtle">
                 <button 
                   onClick={handleSignOut}
-                  className="w-full flex items-center justify-center gap-4 px-6 py-5 text-red-400 bg-red-500/5 rounded-[2rem] transition-all font-bold text-lg"
+                  className="w-full flex items-center justify-center gap-2 px-6 py-4 text-red-500 bg-red-500/5 rounded-2xl transition-all font-semibold"
                 >
-                  <LogOut className="w-6 h-6" />
+                  <LogOut className="w-5 h-5" />
                   Sign Out
                 </button>
               </div>
@@ -216,21 +217,21 @@ export function Layout({ children, activeTab, setActiveTab, user, onAddTrade }: 
       <div className="flex-1 lg:ml-72 pb-24 lg:pb-0 pt-20 lg:pt-0">
         {/* Desktop Header */}
         <header className="hidden lg:flex h-16 border-b border-border-subtle bg-surface-100/80 backdrop-blur-xl sticky top-0 z-10 px-10 items-center justify-between">
-          <h2 className="text-lg font-semibold tracking-tight capitalize text-text-100">{activeTab.replace('-', ' ')}</h2>
+          <h2 className="text-lg font-semibold tracking-tight capitalize text-text-100">{getPageTitle()}</h2>
           <div className="flex items-center gap-6">
             <div className="flex bg-surface-200 rounded-xl p-1 border border-border-subtle">
-              <button 
-                onClick={() => setActiveTab('pricing')}
-                className={`px-4 py-1.5 rounded-lg text-[10px] font-semibold uppercase tracking-wider transition-all ${activeTab === 'pricing' ? 'bg-brand-500 text-white shadow-sm' : 'text-text-200 hover:text-text-100'}`}
+              <NavLink 
+                to="/pricing"
+                className={({ isActive }) => `px-4 py-1.5 rounded-lg text-[10px] font-semibold uppercase tracking-wider transition-all ${isActive ? 'bg-brand-500 text-white shadow-sm' : 'text-text-200 hover:text-text-100'}`}
               >
                 Pricing
-              </button>
-              <button 
-                onClick={() => setActiveTab('settings')}
-                className={`px-4 py-1.5 rounded-lg text-[10px] font-semibold uppercase tracking-wider transition-all ${activeTab === 'settings' ? 'bg-brand-500 text-white shadow-sm' : 'text-text-200 hover:text-text-100'}`}
+              </NavLink>
+              <NavLink 
+                to="/settings"
+                className={({ isActive }) => `px-4 py-1.5 rounded-lg text-[10px] font-semibold uppercase tracking-wider transition-all ${isActive ? 'bg-brand-500 text-white shadow-sm' : 'text-text-200 hover:text-text-100'}`}
               >
                 Settings
-              </button>
+              </NavLink>
             </div>
             <div className="w-px h-6 bg-border-subtle" />
             <button 
@@ -249,32 +250,30 @@ export function Layout({ children, activeTab, setActiveTab, user, onAddTrade }: 
       </div>
 
       {/* Mobile Bottom Navigation */}
-      <nav className="lg:hidden fixed bottom-0 left-0 right-0 h-24 bg-surface-200/90 backdrop-blur-2xl border-t border-border-subtle z-40 px-8 flex items-center justify-between pb-safe">
+      <nav className="lg:hidden fixed bottom-0 left-0 right-0 h-16 bg-surface-200/90 backdrop-blur-2xl border-t border-border-subtle z-40 px-6 flex items-center justify-between pb-safe">
         {bottomNavItems.map((item) => {
           if (item.isAction) {
             return (
               <button
                 key={item.id}
                 onClick={onAddTrade}
-                className="w-16 h-16 bg-gradient-to-br from-blue-600 to-purple-600 rounded-[2rem] flex items-center justify-center shadow-2xl shadow-blue-600/40 -translate-y-8 active:scale-90 transition-transform border-4 border-surface-100"
+                className="w-12 h-12 bg-brand-500 rounded-2xl flex items-center justify-center shadow-lg -translate-y-4 active:scale-90 transition-transform border-4 border-surface-100"
               >
-                <Plus className="w-10 h-10 text-white" />
+                <Plus className="w-6 h-6 text-white" />
               </button>
             );
           }
           return (
-            <button
+            <NavLink
               key={item.id}
-              onClick={() => setActiveTab(item.id)}
-              className={`flex flex-col items-center gap-1.5 transition-all ${
-                activeTab === item.id ? 'text-blue-500' : 'text-text-200'
+              to={item.path || '#'}
+              className={({ isActive }) => `flex flex-col items-center gap-1 transition-all ${
+                isActive ? 'text-brand-500' : 'text-text-200'
               }`}
             >
-              <div className={`p-2 rounded-2xl transition-all ${activeTab === item.id ? 'bg-blue-500/10' : ''}`}>
-                <item.icon className={`w-6 h-6 ${activeTab === item.id ? 'stroke-[2.5px]' : 'stroke-[2px]'}`} />
-              </div>
-              <span className="text-[9px] font-black uppercase tracking-widest">{item.label}</span>
-            </button>
+              <item.icon className="w-5 h-5" />
+              <span className="text-[9px] font-semibold uppercase tracking-wide">{item.label}</span>
+            </NavLink>
           );
         })}
       </nav>

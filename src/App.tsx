@@ -20,37 +20,39 @@ import { auth, db, OperationType, handleFirestoreError } from './firebase';
 import { Trade, UserProfile } from './types';
 import { AlertCircle } from 'lucide-react';
 import { Layout } from './components/Layout';
-import { Dashboard } from './components/Dashboard';
-import { TradeHistory } from './components/TradeHistory';
-import { TradeCalendar } from './components/TradeCalendar';
-import { Analytics } from './components/Analytics';
-import { Psychology } from './components/Psychology';
-import { Auth } from './components/Auth';
 import { TradeForm } from './components/TradeForm';
-import { Settings } from './components/Settings';
 import { TradeDetail } from './components/TradeDetail';
-import { Pricing } from './components/Pricing';
-import { DashboardSkeleton, HistorySkeleton } from './components/Skeleton';
 import { motion, AnimatePresence } from 'motion/react';
 import { Toaster, toast } from 'sonner';
-import { LockedFeature } from './components/LockedFeature';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
+
+// Import Pages
+import Home from './pages/Home';
+import LoginPage from './pages/LoginPage';
+import DashboardPage from './pages/DashboardPage';
+import HistoryPage from './pages/HistoryPage';
+import AnalyticsPage from './pages/AnalyticsPage';
+import PsychologyPage from './pages/PsychologyPage';
+import PricingPage from './pages/PricingPage';
+import SettingsPage from './pages/SettingsPage';
+import CalendarPage from './pages/CalendarPage';
+import { DashboardSkeleton, HistorySkeleton } from './components/Skeleton';
 
 export default function App() {
   const [user, setUser] = useState<FirebaseUser | null>(null);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [trades, setTrades] = useState<Trade[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('dashboard');
   const [isTradeModalOpen, setIsTradeModalOpen] = useState(false);
   const [editingTrade, setEditingTrade] = useState<Trade | null>(null);
   const [selectedTrade, setSelectedTrade] = useState<Trade | null>(null);
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+  const location = useLocation();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       setUser(firebaseUser);
       if (firebaseUser) {
-        // Ensure profile exists
         const userDocRef = doc(db, 'users', firebaseUser.uid);
         try {
           const userDoc = await getDoc(userDocRef);
@@ -115,7 +117,6 @@ export default function App() {
       })) as Trade[];
       setTrades(tradesData);
       
-      // Keep userProfile sync'd with actual trade count
       if (userProfile && tradesData.length !== userProfile.tradeCount) {
         try {
           const userDocRef = doc(db, 'users', user.uid);
@@ -127,17 +128,16 @@ export default function App() {
       
       setLoading(false);
     }, (error) => {
-      // Only report if still logged in
       if (auth.currentUser) {
         handleFirestoreError(error, OperationType.LIST, 'trades');
       }
-      setLoading(false); // Stop loading even on error
+      setLoading(false);
     });
 
     return () => unsubscribeTrades();
-  }, [user]);
+  }, [user, userProfile]);
 
-  // Theme Management & Persistence
+  // Theme Management
   useEffect(() => {
     const applyTheme = (theme: string) => {
       const root = document.documentElement;
@@ -151,34 +151,16 @@ export default function App() {
       localStorage.setItem('theme', theme);
     };
 
-    // Initial Resolution
     const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
     const resolvedTheme = userProfile?.theme || localStorage.getItem('theme') || (systemDark ? 'dark' : 'light');
     applyTheme(resolvedTheme as string);
-
-    // Listen for System Preference Changes
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    const handleSystemChange = (e: MediaQueryListEvent) => {
-      // Only auto-switch if the user hasn't set an explicit preference
-      if (!userProfile?.theme && !localStorage.getItem('theme')) {
-        applyTheme(e.matches ? 'dark' : 'light');
-      }
-    };
-
-    mediaQuery.addEventListener('change', handleSystemChange);
-    return () => mediaQuery.removeEventListener('change', handleSystemChange);
   }, [userProfile?.theme]);
 
   const handleAddTrade = async (tradeData: Partial<Trade>) => {
     if (!user || !userProfile) return;
 
-    // Check trade limit for free users (Lifetime)
     if (userProfile.plan === 'free' && trades.length >= 10) {
       toast.error("Free limit reached. Upgrade to continue using TradeTrack Pro.", {
-        action: {
-          label: 'Upgrade',
-          onClick: () => setActiveTab('pricing')
-        },
         duration: 5000
       });
       return;
@@ -191,7 +173,6 @@ export default function App() {
         timestamp: new Date().toISOString()
       });
       
-      // Increment trade count
       const userDocRef = doc(db, 'users', user.uid);
       const newCount = (userProfile.tradeCount || 0) + 1;
       await updateDoc(userDocRef, {
@@ -231,97 +212,99 @@ export default function App() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-surface-100 text-text-100 font-sans">
-      <Layout activeTab={activeTab} setActiveTab={setActiveTab} user={userProfile} onAddTrade={() => setIsTradeModalOpen(true)}>
-          <main className="p-6 max-w-7xl mx-auto">
-            {activeTab === 'dashboard' ? <DashboardSkeleton /> : <HistorySkeleton />}
-          </main>
-        </Layout>
+      <div className="min-h-screen bg-surface-100 text-text-100 font-sans flex items-center justify-center p-6">
+        <div className="max-w-7xl w-full">
+          {location.pathname.startsWith('/dashboard') || location.pathname.startsWith('/history') ? <HistorySkeleton /> : <DashboardSkeleton />}
+        </div>
       </div>
     );
   }
 
-  if (!user) {
-    return <Auth onLogin={() => {}} />;
-  }
-
-  const renderContent = () => {
-    switch (activeTab) {
-      case 'dashboard':
-        return <Dashboard trades={trades} onAddTrade={() => setIsTradeModalOpen(true)} user={userProfile} onUpgrade={() => setActiveTab('pricing')} />;
-      case 'history':
-        return (
-          <TradeHistory 
-            trades={trades} 
-            onEdit={(trade) => {
-              setEditingTrade(trade);
-              setIsTradeModalOpen(true);
-            }} 
-            onDelete={(id) => setConfirmDeleteId(id)}
-            onView={(trade) => setSelectedTrade(trade)}
-          />
-        );
-      case 'calendar':
-        return <TradeCalendar trades={trades} />;
-      case 'analytics':
-        if (userProfile?.plan === 'free') {
-          return (
-            <LockedFeature 
-              featureName="Advanced Analytics" 
-              description="Get deep insights into your trading performance with equity curves, win/loss streaks, and risk-reward analysis." 
-              onUpgrade={() => setActiveTab('pricing')}
-            />
-          );
-        }
-        return <Analytics trades={trades} />;
-      case 'psychology':
-        if (userProfile?.plan === 'free') {
-          return (
-            <LockedFeature 
-              featureName="Smart Insights" 
-              description="Analyze your trading behavior, detect overtrading, and get intelligent alerts to improve your discipline." 
-              onUpgrade={() => setActiveTab('pricing')}
-            />
-          );
-        }
-        return <Psychology trades={trades} />;
-      case 'pricing':
-        return <Pricing user={userProfile} onUpgrade={() => setActiveTab('dashboard')} />;
-      case 'settings':
-        return (
-          <Settings 
-            user={userProfile} 
-            onNavigateToPricing={() => setActiveTab('pricing')} 
-            onThemeChange={(theme) => {
-              if (userProfile) {
-                setUserProfile({ ...userProfile, theme });
-              }
-            }}
-          />
-        );
-      default:
-        return <Dashboard trades={trades} onAddTrade={() => setIsTradeModalOpen(true)} user={userProfile} onUpgrade={() => setActiveTab('pricing')} />;
-    }
+  const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+    if (!user) return <Navigate to="/login" replace />;
+    return (
+      <Layout user={userProfile} onAddTrade={() => setIsTradeModalOpen(true)}>
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={location.pathname}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.2 }}
+          >
+            {children}
+          </motion.div>
+        </AnimatePresence>
+      </Layout>
+    );
   };
 
   return (
-    <div className={`min-h-screen font-sans selection:bg-blue-500/30 transition-colors duration-500 ${userProfile?.theme === 'light' ? 'bg-surface-100 text-text-100' : 'dark bg-surface-100 text-text-100'}`}>
+    <div className={`min-h-screen font-sans selection:bg-brand-500/30 transition-colors duration-500 ${userProfile?.theme === 'light' ? 'bg-surface-100 text-text-100' : 'dark bg-surface-100 text-text-100'}`}>
       <Toaster position="top-right" theme={userProfile?.theme === 'light' ? 'light' : 'dark'} richColors />
-      <Layout activeTab={activeTab} setActiveTab={setActiveTab} user={userProfile} onAddTrade={() => setIsTradeModalOpen(true)}>
-        <main className="max-w-7xl mx-auto">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={activeTab}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.2 }}
-            >
-              {renderContent()}
-            </motion.div>
-          </AnimatePresence>
-        </main>
-      </Layout>
+      
+      <Routes>
+        <Route path="/" element={user ? <Navigate to="/dashboard" /> : <Home />} />
+        <Route path="/login" element={user ? <Navigate to="/dashboard" /> : <LoginPage />} />
+        
+        <Route path="/dashboard" element={
+          <ProtectedRoute>
+            <DashboardPage trades={trades} user={userProfile} onAddTrade={() => setIsTradeModalOpen(true)} onUpgrade={() => {}} />
+          </ProtectedRoute>
+        } />
+        
+        <Route path="/history" element={
+          <ProtectedRoute>
+            <HistoryPage 
+              trades={trades} 
+              onEdit={(trade) => {
+                setEditingTrade(trade);
+                setIsTradeModalOpen(true);
+              }}
+              onDelete={setConfirmDeleteId}
+              onView={setSelectedTrade}
+            />
+          </ProtectedRoute>
+        } />
+
+        <Route path="/calendar" element={
+          <ProtectedRoute>
+            <CalendarPage trades={trades} />
+          </ProtectedRoute>
+        } />
+
+        <Route path="/analytics" element={
+          <ProtectedRoute>
+            <AnalyticsPage trades={trades} user={userProfile} />
+          </ProtectedRoute>
+        } />
+
+        <Route path="/psychology" element={
+          <ProtectedRoute>
+            <PsychologyPage trades={trades} user={userProfile} />
+          </ProtectedRoute>
+        } />
+
+        <Route path="/pricing" element={
+          <ProtectedRoute>
+            <PricingPage user={userProfile} onUpgrade={() => {}} />
+          </ProtectedRoute>
+        } />
+
+        <Route path="/settings" element={
+          <ProtectedRoute>
+            <SettingsPage 
+              user={userProfile} 
+              onNavigateToPricing={() => {}} 
+              onThemeChange={(theme) => {
+                if (userProfile) setUserProfile({ ...userProfile, theme: theme as 'dark' | 'light' });
+              }} 
+            />
+          </ProtectedRoute>
+        } />
+
+        <Route path="*" element={<Navigate to="/" />} />
+      </Routes>
 
       <AnimatePresence>
         {isTradeModalOpen && (
@@ -334,7 +317,7 @@ export default function App() {
             initialData={editingTrade}
             accountBalance={userProfile?.accountBalance}
             userPlan={userProfile?.plan}
-            tradeCount={userProfile?.tradeCount}
+            tradeCount={trades.length}
           />
         )}
         {selectedTrade && (
@@ -351,7 +334,6 @@ export default function App() {
         )}
       </AnimatePresence>
 
-      {/* Global Delete Confirmation Modal */}
       {confirmDeleteId && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
           <div className="bg-surface-100 border border-border-subtle p-8 rounded-2xl max-w-sm w-full space-y-6 text-center shadow-sm">
