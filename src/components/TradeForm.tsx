@@ -9,6 +9,8 @@ import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { storage, auth } from '../firebase';
 import { toast } from 'sonner';
 
+import { uploadScreenshot } from '../services/storageService';
+
 const tradeSchema = z.object({
   pair: z.string().min(1, 'Required'),
   type: z.enum(['buy', 'sell']),
@@ -27,6 +29,7 @@ const tradeSchema = z.object({
   outcome: z.enum(['win', 'loss', 'breakeven', 'open']).default('open'),
   profitLoss: z.number().optional(),
   riskRewardRatio: z.number().optional(),
+  screenshot: z.string().optional(),
   imageUrl: z.string().optional(),
 });
 
@@ -156,6 +159,15 @@ export function TradeForm({ onClose, onSubmit, initialData, accountBalance = 100
     const file = e.target.files?.[0];
     if (!file) return;
 
+    // Freemium check: Screen upload is pro only
+    if (userPlan !== 'premium') {
+      toast.error('Screenshot upload is available on Pro plan.', {
+        description: 'Upgrade your account to attach images to your trades.'
+      });
+      if (fileInputRef.current) fileInputRef.current.value = '';
+      return;
+    }
+
     // Validate file type and size
     if (!file.type.startsWith('image/')) {
       toast.error('Please upload an image file');
@@ -170,34 +182,20 @@ export function TradeForm({ onClose, onSubmit, initialData, accountBalance = 100
 
     setIsUploading(true);
     try {
-      console.log('Starting upload process for file:', file.name);
-      
       if (!auth.currentUser) {
         throw new Error('User is not authenticated. Please log in again.');
       }
 
-      // Simple client-side compression using Canvas
-      console.log('Compressing image...');
       const compressedFile = await compressImage(file);
-      console.log('Compression complete. Original size:', file.size, 'Compressed size:', compressedFile.size);
-      
-      const fileName = `${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.]/g, '_')}`;
-      const storageRef = ref(storage, `trades/${auth.currentUser.uid}/${fileName}`);
-      
-      console.log('Uploading to path:', storageRef.fullPath);
-      const snapshot = await uploadBytes(storageRef, compressedFile);
-      console.log('Upload successful. Metadata:', snapshot.metadata);
-      
-      const url = await getDownloadURL(snapshot.ref);
-      console.log('Download URL retrieved:', url);
+      const url = await uploadScreenshot(new File([compressedFile], file.name, { type: 'image/jpeg' }), auth.currentUser.uid);
       
       setPreviewUrl(url);
-      setValue('imageUrl', url);
+      setValue('screenshot', url);
+      setValue('imageUrl', url); // Keep both for safety
       toast.success('Screenshot uploaded successfully');
     } catch (error: any) {
-      console.error('Upload error details:', error);
-      const errorMessage = error.message || 'Failed to upload screenshot. Please check your connection.';
-      toast.error(errorMessage);
+      console.error('Upload error:', error);
+      toast.error(error.message || 'Failed to upload screenshot.');
     } finally {
       setIsUploading(false);
     }
@@ -279,17 +277,17 @@ export function TradeForm({ onClose, onSubmit, initialData, accountBalance = 100
         </div>
 
         <form id="trade-form" onSubmit={handleSubmit(onSubmit)} className="p-6 sm:p-8 overflow-y-auto space-y-6 sm:space-y-8 flex-1">
-          {userPlan === 'free' && tradeCount >= 5 && (
-            <div className={`p-4 rounded-2xl border flex items-center gap-3 ${tradeCount >= 10 ? 'bg-red-500/10 border-red-500/20 text-red-500' : 'bg-yellow-500/10 border-yellow-500/20 text-yellow-500'}`}>
+          {userPlan === 'free' && (
+            <div className={`p-4 rounded-2xl border flex items-center gap-3 ${tradeCount >= 10 ? 'bg-red-500/10 border-red-500/20 text-red-500' : 'bg-blue-500/10 border-blue-500/20 text-blue-500'}`}>
               <AlertCircle className="w-5 h-5 flex-shrink-0" />
               <div className="space-y-0.5">
                 <p className="text-xs font-bold uppercase tracking-wider">
-                  {tradeCount >= 10 ? 'Monthly Limit Reached' : 'Approaching Limit'}
+                  {tradeCount >= 10 ? 'Monthly Limit Reached' : 'Free Plan Active'}
                 </p>
                 <p className="text-[10px] opacity-80 leading-relaxed">
                   {tradeCount >= 10 
-                    ? "Upgrade to Premium for unlimited trades and insights." 
-                    : `You have used ${tradeCount} of your 10 monthly trades.`}
+                    ? "Free limit reached. Upgrade to continue using TradeTrack Pro." 
+                    : `You have used ${tradeCount} of your 10 lifetime trades.`}
                 </p>
               </div>
             </div>
@@ -549,9 +547,14 @@ export function TradeForm({ onClose, onSubmit, initialData, accountBalance = 100
 
           {/* Screenshot Upload */}
           <div className="space-y-4 pt-4 border-t border-white/5">
-            <label className="text-xs sm:text-sm font-medium text-gray-400 flex items-center gap-2">
-              <ImageIcon className="w-4 h-4" /> Trade Screenshot
-            </label>
+            <div className="flex items-center justify-between">
+              <label className="text-xs sm:text-sm font-medium text-gray-400 flex items-center gap-2">
+                <ImageIcon className="w-4 h-4" /> Trade Screenshot
+              </label>
+              {userPlan !== 'premium' && (
+                <span className="text-[10px] bg-yellow-500/10 text-yellow-500 px-2 py-0.5 rounded-full font-black uppercase tracking-widest border border-yellow-500/20">Pro Only</span>
+              )}
+            </div>
             
             {previewUrl ? (
               <div className="relative group rounded-2xl overflow-hidden border border-white/10 bg-white/5">
@@ -564,7 +567,13 @@ export function TradeForm({ onClose, onSubmit, initialData, accountBalance = 100
                 <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-4">
                   <button
                     type="button"
-                    onClick={() => fileInputRef.current?.click()}
+                    onClick={() => {
+                      if (userPlan === 'premium') {
+                        fileInputRef.current?.click();
+                      } else {
+                        toast.error('Screenshot upload is for Pro users');
+                      }
+                    }}
                     className="p-3 bg-white/10 hover:bg-white/20 rounded-full text-white transition-all"
                     title="Change Screenshot"
                   >
@@ -583,9 +592,17 @@ export function TradeForm({ onClose, onSubmit, initialData, accountBalance = 100
             ) : (
               <button
                 type="button"
-                onClick={() => fileInputRef.current?.click()}
+                onClick={() => {
+                  if (userPlan === 'premium') {
+                    fileInputRef.current?.click();
+                  } else {
+                    toast.error('Screenshot upload is available on Pro plan.', {
+                      description: 'Upgrade to attach images to your orders.'
+                    });
+                  }
+                }}
                 disabled={isUploading}
-                className="w-full aspect-video border-2 border-dashed border-white/10 rounded-2xl flex flex-col items-center justify-center gap-3 hover:border-blue-500/50 hover:bg-blue-500/5 transition-all group"
+                className={`w-full aspect-video border-2 border-dashed border-white/10 rounded-2xl flex flex-col items-center justify-center gap-3 transition-all group ${userPlan === 'premium' ? 'hover:border-blue-500/50 hover:bg-blue-500/5' : 'opacity-60 cursor-not-allowed grayscale'}`}
               >
                 <div className="p-4 bg-white/5 rounded-full group-hover:bg-blue-500/10 transition-all">
                   {isUploading ? (
@@ -598,7 +615,9 @@ export function TradeForm({ onClose, onSubmit, initialData, accountBalance = 100
                   <p className="text-sm font-bold text-gray-400 group-hover:text-gray-200">
                     {isUploading ? 'Uploading...' : 'Click to upload screenshot'}
                   </p>
-                  <p className="text-xs text-gray-600">Supports JPG, PNG (Max 5MB)</p>
+                  <p className="text-xs text-gray-600">
+                    {userPlan === 'premium' ? 'Supports JPG, PNG (Max 5MB)' : 'Available on Pro Plan'}
+                  </p>
                 </div>
               </button>
             )}

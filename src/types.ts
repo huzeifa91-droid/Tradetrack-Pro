@@ -32,6 +32,7 @@ export interface Trade {
   riskMode?: 'amount' | 'lot';
   riskAmount?: number;
   riskPercentage?: number;
+  screenshot?: string;
   imageUrl?: string;
 }
 

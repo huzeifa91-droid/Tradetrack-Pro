@@ -86,29 +86,13 @@ export default function App() {
     const unsubscribeUser = onSnapshot(userDocRef, (snapshot) => {
       if (snapshot.exists()) {
         const data = snapshot.data() as UserProfile;
-        
-        // Monthly reset logic
-        const now = new Date();
-        const lastReset = data.subscriptionStartDate ? new Date(data.subscriptionStartDate) : new Date(0);
-        const daysSinceReset = (now.getTime() - lastReset.getTime()) / (1000 * 60 * 60 * 24);
-        
-        if (daysSinceReset >= 30) {
-          updateDoc(userDocRef, {
-            tradeCount: 0,
-            subscriptionStartDate: now.toISOString()
-          }).catch(err => console.error("Error resetting trade count:", err));
-        } else {
-          setUserProfile(data);
-        }
-      } else {
-        // If profile doesn't exist yet, we might still be creating it in the other useEffect
-        // But we should stop loading if it's taking too long
+        setUserProfile(data);
       }
     }, (error) => {
       if (auth.currentUser) {
         handleFirestoreError(error, OperationType.GET, `users/${user.uid}`);
       }
-      setLoading(false); // Stop loading even on error
+      setLoading(false);
     });
 
     return () => unsubscribeUser();
@@ -123,12 +107,23 @@ export default function App() {
       orderBy('timestamp', 'desc')
     );
 
-    const unsubscribeTrades = onSnapshot(tradesQuery, (snapshot) => {
+    const unsubscribeTrades = onSnapshot(tradesQuery, async (snapshot) => {
       const tradesData = snapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
       })) as Trade[];
       setTrades(tradesData);
+      
+      // Keep userProfile sync'd with actual trade count
+      if (userProfile && tradesData.length !== userProfile.tradeCount) {
+        try {
+          const userDocRef = doc(db, 'users', user.uid);
+          await updateDoc(userDocRef, { tradeCount: tradesData.length });
+        } catch (err) {
+          console.error("Error updating trade count:", err);
+        }
+      }
+      
       setLoading(false);
     }, (error) => {
       // Only report if still logged in
@@ -176,9 +171,9 @@ export default function App() {
   const handleAddTrade = async (tradeData: Partial<Trade>) => {
     if (!user || !userProfile) return;
 
-    // Check trade limit for free users
-    if (userProfile.plan === 'free' && (userProfile.tradeCount || 0) >= 10) {
-      toast.error("You've reached your monthly limit. Upgrade to Premium for unlimited trades.", {
+    // Check trade limit for free users (Lifetime)
+    if (userProfile.plan === 'free' && trades.length >= 10) {
+      toast.error("Free limit reached. Upgrade to continue using TradeTrack Pro.", {
         action: {
           label: 'Upgrade',
           onClick: () => setActiveTab('pricing')

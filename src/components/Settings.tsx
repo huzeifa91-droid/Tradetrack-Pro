@@ -219,7 +219,7 @@ export function Settings({ user, onNavigateToPricing, onThemeChange }: SettingsP
                   )}
                 </div>
                 <p className="text-xs text-text-200">
-                  {user?.plan === 'premium' ? 'Unlimited trades and full analytics' : `${user?.tradeCount || 0} / 10 trades used this month`}
+                  {user?.plan === 'premium' ? 'Unlimited trades and full analytics' : `${user?.tradeCount || 0} / 10 lifetime trades used`}
                 </p>
               </div>
               <button 

@@ -93,10 +93,10 @@ export function TradeHistory({ trades, onEdit, onDelete, onView }: TradeHistoryP
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
-                      {trade.imageUrl && (
+                      {(trade.screenshot || trade.imageUrl) && (
                         <div className="w-10 h-10 rounded-lg overflow-hidden border border-border-subtle flex-shrink-0">
                           <img 
-                            src={trade.imageUrl} 
+                            src={trade.screenshot || trade.imageUrl} 
                             alt="Trade" 
                             className="w-full h-full object-cover"
                             referrerPolicy="no-referrer"
@@ -178,10 +178,10 @@ export function TradeHistory({ trades, onEdit, onDelete, onView }: TradeHistoryP
                   }`}>
                     {trade.type === 'buy' ? 'B' : 'S'}
                   </div>
-                  {trade.imageUrl && (
+                  {(trade.screenshot || trade.imageUrl) && (
                     <div className="w-10 h-10 rounded-xl overflow-hidden border border-white/10 flex-shrink-0">
                       <img 
-                        src={trade.imageUrl} 
+                        src={trade.screenshot || trade.imageUrl} 
                         alt="Trade" 
                         className="w-full h-full object-cover"
                         referrerPolicy="no-referrer"

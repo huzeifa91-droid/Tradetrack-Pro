@@ -1,16 +1,133 @@
 import React, { useState } from 'react';
-import { signInWithPopup, GoogleAuthProvider, setPersistence, browserLocalPersistence } from 'firebase/auth';
+import { 
+  signInWithPopup, 
+  GoogleAuthProvider,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  sendPasswordResetEmail,
+  sendEmailVerification
+} from 'firebase/auth';
 import { auth } from '../firebase';
-import { TrendingUp, ShieldCheck, Zap, BarChart3, AlertCircle } from 'lucide-react';
+import { TrendingUp, ShieldCheck, Zap, BarChart3, AlertCircle, Mail, Lock, UserPlus, LogIn, KeyRound, ArrowLeft } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { toast } from 'sonner';
 
 interface AuthProps {
   onLogin: () => void;
 }
 
+type AuthMode = 'login' | 'signup' | 'forgot-password';
+
 export function Auth({ onLogin }: AuthProps) {
+  const [mode, setMode] = useState<AuthMode>('login');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+
+  const handleEmailAuth = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    setIsLoading(true);
+
+    try {
+      if (mode === 'signup') {
+        if (password.length < 6) {
+          throw new Error('Password must be at least 6 characters long.');
+        }
+        const result = await createUserWithEmailAndPassword(auth, email, password);
+        if (result.user) {
+          await sendEmailVerification(result.user);
+          toast.success('Verification email sent!', {
+            description: `Please check ${email} to verify your account before logging in.`
+          });
+          setMode('login');
+        }
+      } else if (mode === 'login') {
+        const result = await signInWithEmailAndPassword(auth, email, password);
+        if (result.user) {
+          if (!result.user.emailVerified) {
+            setError('Please verify your email address before logging in.');
+            // Sign out the user immediately if they are not verified
+            await auth.signOut();
+            setIsLoading(false);
+            return;
+          }
+          onLogin();
+        }
+      }
+    } catch (err: any) {
+      console.error("Email Auth Error:", err);
+      if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') {
+        setError('Invalid email or password.');
+      } else if (err.code === 'auth/email-already-in-use') {
+        setError('This email is already in use. Try logging in instead.');
+      } else if (err.code === 'auth/invalid-email') {
+        setError('Please enter a valid email address.');
+      } else if (err.code === 'auth/too-many-requests') {
+        setError('Too many failed attempts. Please try again later.');
+      } else {
+        setError(err.message || 'An unexpected error occurred.');
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleResendVerification = async () => {
+    if (!email) {
+      setError('Please enter your email to resend the verification link.');
+      return;
+    }
+    setError(null);
+    setIsLoading(true);
+    try {
+      // We need to sign in temporarily to get the user object if they are not signed in
+      // But Firebase documentation says sendEmailVerification should be called on the currentUser.
+      // If the user is logging in and sees the error, we might have a currentUser briefly or they might be signed out.
+      // A better way is to ask them to try signing in, which sets the currentUser, then we catch the verification error.
+      // However, for simplicity, we can try to send it if there's a current user.
+      if (auth.currentUser) {
+        await sendEmailVerification(auth.currentUser);
+        toast.success('Verification email resent!');
+      } else {
+        setError('Please try logging in first to resend verification.');
+      }
+    } catch (err: any) {
+      setError(err.message || 'Failed to resend verification email.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email) {
+      setError('Please enter your email address.');
+      return;
+    }
+    
+    setError(null);
+    setIsLoading(true);
+    try {
+      await sendPasswordResetEmail(auth, email);
+      toast.success('Password reset email sent!', {
+        description: `Check your inbox at ${email} for instructions.`
+      });
+      setMode('login');
+    } catch (err: any) {
+      console.error("Forgot Password Error:", err);
+      if (err.code === 'auth/user-not-found') {
+        setError('No account found with this email.');
+      } else if (err.code === 'auth/invalid-email') {
+        setError('Please enter a valid email address.');
+      } else {
+        setError(err.message || 'Failed to send reset email.');
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleGoogleLogin = async () => {
     setError(null);
@@ -18,28 +135,20 @@ export function Auth({ onLogin }: AuthProps) {
     
     try {
       const provider = new GoogleAuthProvider();
-      // Add custom parameters if needed, but keeping it simple for now
       provider.setCustomParameters({ prompt: 'select_account' });
       
-      console.log("Initiating Google Login...");
       const result = await signInWithPopup(auth, provider);
-      console.log("Login result:", result.user ? "Success" : "No user");
       if (result.user) {
         onLogin();
       }
     } catch (err: any) {
-      console.error("Login Error Details:", err);
-
+      console.error("Google Login Error:", err);
       if (err.code === 'auth/popup-blocked') {
-        setError('The login popup was blocked by your browser. Please allow popups for this site and try again.');
-      } else if (err.code === 'auth/network-request-failed') {
-        setError('A network error occurred. Please check your internet connection.');
+        setError('The login popup was blocked. Please allow popups and try again.');
       } else if (err.code === 'auth/popup-closed-by-user') {
-        setError('Login was cancelled. Please try again.');
-      } else if (err.code === 'auth/internal-error') {
-        setError('A Firebase internal error occurred (auth/internal-error). This often happens due to browser restrictions or configuration issues. Try clearing your cache or using an Incognito window.');
+        setError('Login cancelled.');
       } else {
-        setError(`Login failed: ${err.message || 'An unexpected error occurred'}. (Code: ${err.code})`);
+        setError(`Login failed: ${err.message || 'An unexpected error occurred'}`);
       }
     } finally {
       setIsLoading(false);
@@ -90,15 +199,21 @@ export function Auth({ onLogin }: AuthProps) {
         <motion.div 
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="w-full max-w-md space-y-6 lg:space-y-8"
+          className="w-full max-w-md space-y-8"
         >
           <div className="text-center">
-            <h3 className="text-2xl lg:text-3xl font-bold">Get Started</h3>
-            <p className="text-text-200 mt-2 text-sm lg:text-base">Join thousands of traders improving their edge.</p>
+            <h3 className="text-2xl lg:text-3xl font-bold">
+              {mode === 'login' ? 'Welcome Back' : mode === 'signup' ? 'Create Account' : 'Reset Password'}
+            </h3>
+            <p className="text-text-200 mt-2 text-sm lg:text-base">
+              {mode === 'login' ? 'Login to continue your trading journey.' : 
+               mode === 'signup' ? 'Join thousands of traders improving their edge.' : 
+               'Enter your email to receive a reset link.'}
+            </p>
           </div>
 
-          <div className="space-y-4">
-            <AnimatePresence>
+          <div className="space-y-6">
+            <AnimatePresence mode="wait">
               {error && (
                 <motion.div 
                   initial={{ opacity: 0, height: 0 }}
@@ -107,34 +222,124 @@ export function Auth({ onLogin }: AuthProps) {
                   className="bg-red-500/10 border border-red-500/20 rounded-xl p-4 flex items-start gap-3"
                 >
                   <AlertCircle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
-                  <p className="text-xs lg:text-sm text-red-400 leading-relaxed">{error}</p>
+                  <div className="space-y-2">
+                    <p className="text-xs lg:text-sm text-red-400 leading-relaxed">{error}</p>
+                    {error === 'Please verify your email address before logging in.' && (
+                      <button 
+                        type="button"
+                        onClick={handleResendVerification}
+                        className="text-xs font-bold text-blue-500 hover:text-blue-400 underline"
+                      >
+                        Resend verification email
+                      </button>
+                    )}
+                  </div>
                 </motion.div>
               )}
             </AnimatePresence>
 
-            <button 
-              onClick={handleGoogleLogin}
-              disabled={isLoading}
-              className="w-full bg-blue-600 text-white dark:bg-white dark:text-black py-3.5 lg:py-4 rounded-xl lg:rounded-2xl font-bold flex items-center justify-center gap-3 hover:opacity-90 transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed shadow-xl shadow-blue-600/20 dark:shadow-none"
-            >
-              {isLoading ? (
-                <div className="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin" />
-              ) : (
-                <img src="https://www.google.com/favicon.ico" className="w-5 h-5" alt="Google" />
-              )}
-              {isLoading ? 'Connecting...' : 'Continue with Google'}
-            </button>
-            
-            <div className="relative py-2 lg:py-4">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-border-subtle"></div>
+            <form onSubmit={mode === 'forgot-password' ? handleForgotPassword : handleEmailAuth} className="space-y-4">
+              <div className="space-y-2">
+                <label className="text-xs font-bold uppercase tracking-widest text-text-200 ml-1">Email Address</label>
+                <div className="relative">
+                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-text-200" />
+                  <input 
+                    type="email"
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="name@example.com"
+                    className="w-full bg-surface-300 border border-border-subtle rounded-xl py-3.5 pl-12 pr-4 focus:border-blue-500 outline-none transition-all text-sm"
+                  />
+                </div>
               </div>
-              <div className="relative flex justify-center text-[10px] uppercase">
-                <span className="bg-surface-200 px-4 text-text-200 font-bold tracking-widest">Secure Access</span>
-              </div>
-            </div>
 
-            <p className="text-center text-[10px] lg:text-xs text-text-200/50 leading-relaxed">
+              {mode !== 'forgot-password' && (
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center px-1">
+                    <label className="text-xs font-bold uppercase tracking-widest text-text-200">Password</label>
+                    {mode === 'login' && (
+                      <button 
+                        type="button" 
+                        onClick={() => setMode('forgot-password')}
+                        className="text-[10px] uppercase font-bold text-blue-500 hover:text-blue-400 transition-colors"
+                      >
+                        Forgot?
+                      </button>
+                    )}
+                  </div>
+                  <div className="relative">
+                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-text-200" />
+                    <input 
+                      type="password"
+                      required
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="••••••••"
+                      className="w-full bg-surface-300 border border-border-subtle rounded-xl py-3.5 pl-12 pr-4 focus:border-blue-500 outline-none transition-all text-sm"
+                    />
+                  </div>
+                </div>
+              )}
+
+              <button 
+                type="submit"
+                disabled={isLoading}
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3.5 rounded-xl font-bold flex items-center justify-center gap-2 transition-all active:scale-[0.98] disabled:opacity-50 shadow-lg shadow-blue-600/20"
+              >
+                {isLoading ? (
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                ) : (
+                  <>
+                    {mode === 'login' ? <LogIn className="w-5 h-5" /> : mode === 'signup' ? <UserPlus className="w-5 h-5" /> : <KeyRound className="w-5 h-5" />}
+                    {mode === 'login' ? 'Login' : mode === 'signup' ? 'Sign Up' : 'Send Reset Link'}
+                  </>
+                )}
+              </button>
+
+              {mode === 'forgot-password' && (
+                <button 
+                  type="button"
+                  onClick={() => setMode('login')}
+                  className="w-full py-2 text-sm font-medium text-text-200 hover:text-text-100 flex items-center justify-center gap-2 transition-colors"
+                >
+                  <ArrowLeft className="w-4 h-4" /> Back to Login
+                </button>
+              )}
+            </form>
+
+            {mode !== 'forgot-password' && (
+              <>
+                <div className="relative py-2">
+                  <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t border-border-subtle"></div>
+                  </div>
+                  <div className="relative flex justify-center text-[10px] uppercase">
+                    <span className="bg-surface-200 px-4 text-text-200 font-bold tracking-widest">Or Continue With</span>
+                  </div>
+                </div>
+
+                <button 
+                  onClick={handleGoogleLogin}
+                  disabled={isLoading}
+                  className="w-full bg-surface-300 hover:bg-surface-100 text-text-100 border border-border-subtle py-3.5 rounded-xl font-bold flex items-center justify-center gap-3 transition-all active:scale-[0.98] disabled:opacity-50"
+                >
+                  <img src="https://www.google.com/favicon.ico" className="w-5 h-5" alt="Google" />
+                  Google
+                </button>
+
+                <div className="text-center pt-2">
+                  <button 
+                    onClick={() => setMode(mode === 'login' ? 'signup' : 'login')}
+                    className="text-sm font-medium text-blue-500 hover:text-blue-400 transition-colors"
+                  >
+                    {mode === 'login' ? "Don't have an account? Sign up" : "Already have an account? Login"}
+                  </button>
+                </div>
+              </>
+            )}
+
+            <p className="text-center text-[10px] lg:text-xs text-text-200/50 leading-relaxed px-8">
               By continuing, you agree to our Terms of Service and Privacy Policy. We take your data security seriously.
             </p>
           </div>
