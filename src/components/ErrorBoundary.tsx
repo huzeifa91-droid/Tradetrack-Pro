@@ -11,7 +11,7 @@ interface State {
   errorInfo: string | null;
 }
 
-export class ErrorBoundary extends React.Component<Props, State> {
+export class ErrorBoundary extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
@@ -44,8 +44,8 @@ export class ErrorBoundary extends React.Component<Props, State> {
   public render() {
     if (this.state.hasError) {
       return (
-        <div className="min-h-screen bg-[#0A0A0A] text-white flex items-center justify-center p-4 sm:p-6 font-sans">
-          <div className="max-w-2xl w-full bg-[#111] border border-white/10 rounded-[2rem] p-6 sm:p-10 shadow-2xl space-y-6 sm:space-y-8">
+        <div className="min-h-screen bg-surface-100 text-text-100 flex items-center justify-center p-4 sm:p-6 font-sans">
+          <div className="max-w-2xl w-full bg-surface-200 border border-border-subtle rounded-[2rem] p-6 sm:p-10 shadow-2xl space-y-6 sm:space-y-8">
             <div className="flex items-center gap-4 text-red-500">
               <div className="p-3 bg-red-500/10 rounded-2xl">
                 <AlertCircle className="w-8 h-8" />
@@ -54,12 +54,12 @@ export class ErrorBoundary extends React.Component<Props, State> {
             </div>
 
             <div className="space-y-4">
-              <p className="text-gray-400 text-sm sm:text-base leading-relaxed">
+              <p className="text-text-200 text-sm sm:text-base leading-relaxed">
                 The application encountered an unexpected error. This might be due to a connection issue or a configuration problem.
               </p>
               
               {this.state.errorInfo && (
-                <div className="bg-black/50 rounded-2xl p-4 sm:p-6 border border-white/5 overflow-auto max-h-[30vh]">
+                <div className="bg-surface-300/50 rounded-2xl p-4 sm:p-6 border border-border-subtle overflow-auto max-h-[30vh]">
                   <pre className="text-[10px] sm:text-xs font-mono text-red-400 whitespace-pre-wrap">
                     {this.state.errorInfo}
                   </pre>
@@ -70,7 +70,7 @@ export class ErrorBoundary extends React.Component<Props, State> {
             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
               <button
                 onClick={() => window.location.reload()}
-                className="flex-1 bg-white text-black py-4 rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-gray-100 transition-all active:scale-[0.98]"
+                className="flex-1 bg-blue-600 text-white py-4 rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-blue-700 transition-all active:scale-[0.98]"
               >
                 <RefreshCw className="w-5 h-5" />
                 Reload Application
@@ -80,13 +80,13 @@ export class ErrorBoundary extends React.Component<Props, State> {
                   localStorage.clear();
                   window.location.reload();
                 }}
-                className="flex-1 bg-white/5 text-white py-4 rounded-2xl font-bold hover:bg-white/10 transition-all active:scale-[0.98]"
+                className="flex-1 bg-surface-300 text-text-100 py-4 rounded-2xl font-bold hover:bg-surface-300/80 transition-all active:scale-[0.98]"
               >
                 Reset & Reload
               </button>
             </div>
             
-            <p className="text-center text-[10px] sm:text-xs text-gray-500 font-medium">
+            <p className="text-center text-[10px] sm:text-xs text-text-200 font-medium">
               If the problem persists, please contact support with the error details above.
             </p>
           </div>

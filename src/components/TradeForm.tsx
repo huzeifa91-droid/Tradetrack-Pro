@@ -269,12 +269,12 @@ export function TradeForm({ onClose, onSubmit, initialData, accountBalance = 100
         initial={{ scale: 0.95, opacity: 0, y: 20 }}
         animate={{ scale: 1, opacity: 1, y: 0 }}
         exit={{ scale: 0.95, opacity: 0, y: 20 }}
-        className="relative w-full max-w-2xl bg-[#111] border-x border-t sm:border border-white/10 rounded-t-[2.5rem] sm:rounded-[2.5rem] shadow-2xl overflow-hidden h-[90vh] sm:h-auto sm:max-h-[90vh] flex flex-col mt-auto sm:mt-0"
+        className="relative w-full max-w-2xl bg-surface-100 border-x border-t sm:border border-border-subtle rounded-t-[2.5rem] sm:rounded-[2.5rem] shadow-2xl overflow-hidden h-[90vh] sm:h-auto sm:max-h-[90vh] flex flex-col mt-auto sm:mt-0"
       >
-        <div className="px-6 py-5 sm:p-6 border-b border-white/5 flex items-center justify-between bg-[#161616] sticky top-0 z-10 shrink-0">
-          <h2 className="text-lg sm:text-xl font-black tracking-tight">{initialData ? 'Edit Trade' : 'Record New Trade'}</h2>
-          <button onClick={onClose} className="p-2 hover:bg-white/5 rounded-full transition-colors">
-            <X className="w-5 h-5 text-gray-400" />
+        <div className="px-6 py-5 sm:p-6 border-b border-border-subtle flex items-center justify-between bg-surface-200 sticky top-0 z-10 shrink-0">
+          <h2 className="text-lg sm:text-xl font-black tracking-tight text-text-100">{initialData ? 'Edit Trade' : 'Record New Trade'}</h2>
+          <button onClick={onClose} className="p-2 hover:bg-surface-300 rounded-full transition-colors">
+            <X className="w-5 h-5 text-text-200" />
           </button>
         </div>
 
@@ -298,33 +298,33 @@ export function TradeForm({ onClose, onSubmit, initialData, accountBalance = 100
           {/* Basic Info */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
             <div className="space-y-2">
-              <label className="text-xs sm:text-sm font-medium text-gray-400 flex items-center gap-2">
+              <label className="text-xs sm:text-sm font-medium text-text-200 flex items-center gap-2">
                 <Tag className="w-4 h-4" /> Trading Pair
               </label>
               <select 
                 {...register('pair')}
-                className="w-full bg-[#1A1A1A] border border-white/5 rounded-xl px-4 py-3 sm:py-3 focus:border-blue-500 outline-none transition-all text-sm"
+                className="w-full bg-surface-300 border border-border-subtle rounded-xl px-4 py-3 sm:py-3 focus:border-blue-500 outline-none transition-all text-sm text-text-100"
               >
                 {PAIRS.map(p => <option key={p} value={p}>{p}</option>)}
               </select>
             </div>
 
             <div className="space-y-2">
-              <label className="text-xs sm:text-sm font-medium text-gray-400 flex items-center gap-2">
+              <label className="text-xs sm:text-sm font-medium text-text-200 flex items-center gap-2">
                 <TrendingUp className="w-4 h-4" /> Trade Type
               </label>
-              <div className="grid grid-cols-2 gap-2 p-1 bg-[#1A1A1A] rounded-xl border border-white/5">
+              <div className="grid grid-cols-2 gap-2 p-1 bg-surface-300 rounded-xl border border-border-subtle">
                 <button
                   type="button"
                   onClick={() => setValue('type', 'buy')}
-                  className={`py-2.5 rounded-lg text-sm font-bold transition-all ${type === 'buy' ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20' : 'text-gray-500 hover:text-white'}`}
+                  className={`py-2.5 rounded-lg text-sm font-bold transition-all ${type === 'buy' ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20' : 'text-text-200 hover:text-text-100'}`}
                 >
                   BUY
                 </button>
                 <button
                   type="button"
                   onClick={() => setValue('type', 'sell')}
-                  className={`py-2.5 rounded-lg text-sm font-bold transition-all ${type === 'sell' ? 'bg-red-500 text-white shadow-lg shadow-red-500/20' : 'text-gray-500 hover:text-white'}`}
+                  className={`py-2.5 rounded-lg text-sm font-bold transition-all ${type === 'sell' ? 'bg-red-500 text-white shadow-lg shadow-red-500/20' : 'text-text-200 hover:text-text-100'}`}
                 >
                   SELL
                 </button>
@@ -339,7 +339,7 @@ export function TradeForm({ onClose, onSubmit, initialData, accountBalance = 100
               <input 
                 type="number" step="any"
                 {...register('entryPrice', { valueAsNumber: true })}
-                className="w-full bg-[#1A1A1A] border border-white/5 rounded-xl px-4 py-3 focus:border-blue-500 outline-none transition-all text-sm"
+                className="w-full bg-surface-300 border border-border-subtle rounded-xl px-4 py-3 focus:border-blue-500 outline-none transition-all text-sm text-text-100"
               />
               {errors.entryPrice && <p className="text-[10px] text-red-500">{errors.entryPrice.message}</p>}
             </div>
@@ -348,7 +348,7 @@ export function TradeForm({ onClose, onSubmit, initialData, accountBalance = 100
               <input 
                 type="number" step="any"
                 {...register('stopLoss', { valueAsNumber: true })}
-                className="w-full bg-[#1A1A1A] border border-white/5 rounded-xl px-4 py-3 focus:border-blue-500 outline-none transition-all text-sm"
+                className="w-full bg-surface-300 border border-border-subtle rounded-xl px-4 py-3 focus:border-blue-500 outline-none transition-all text-sm text-text-100"
               />
               {errors.stopLoss && <p className="text-[10px] text-red-500">{errors.stopLoss.message}</p>}
               {!stopLoss && !errors.stopLoss && <p className="text-[10px] text-orange-500 flex items-center gap-1"><AlertCircle className="w-3 h-3" /> Risking account!</p>}
@@ -358,18 +358,18 @@ export function TradeForm({ onClose, onSubmit, initialData, accountBalance = 100
               <input 
                 type="number" step="any"
                 {...register('takeProfit', { valueAsNumber: true })}
-                className="w-full bg-[#1A1A1A] border border-white/5 rounded-xl px-4 py-3 focus:border-blue-500 outline-none transition-all text-sm"
+                className="w-full bg-surface-300 border border-border-subtle rounded-xl px-4 py-3 focus:border-blue-500 outline-none transition-all text-sm text-text-100"
               />
             </div>
           </div>
 
           {/* Risk Management Section */}
-          <div className="space-y-4 pt-4 border-t border-white/5">
+          <div className="space-y-4 pt-4 border-t border-border-subtle">
             <div className="flex items-center justify-between">
-              <h3 className="text-xs font-bold uppercase tracking-widest text-gray-500 flex items-center gap-2">
+              <h3 className="text-xs font-bold uppercase tracking-widest text-text-200 flex items-center gap-2">
                 <AlertCircle className="w-4 h-4" /> Risk Management
               </h3>
-              <div className="flex bg-[#1A1A1A] p-1 rounded-lg border border-white/5">
+              <div className="flex bg-surface-300 p-1 rounded-lg border border-border-subtle">
                 <button
                   type="button"
                   onClick={() => setValue('riskMode', 'amount')}
@@ -397,7 +397,7 @@ export function TradeForm({ onClose, onSubmit, initialData, accountBalance = 100
                   type="number" step="any"
                   {...register('riskAmount', { valueAsNumber: true })}
                   disabled={riskMode === 'lot'}
-                  className={`w-full bg-[#1A1A1A] border border-white/5 rounded-xl px-4 py-3 focus:border-blue-500 outline-none transition-all text-sm ${riskMode === 'lot' ? 'opacity-50 font-mono text-blue-400' : ''}`}
+                  className={`w-full bg-surface-300 border border-border-subtle rounded-xl px-4 py-3 focus:border-blue-500 outline-none transition-all text-sm text-text-100 ${riskMode === 'lot' ? 'opacity-50 font-mono text-blue-400' : ''}`}
                 />
               </div>
               <div className="space-y-2">
@@ -409,7 +409,7 @@ export function TradeForm({ onClose, onSubmit, initialData, accountBalance = 100
                   type="number" step="0.01"
                   {...register('lotSize', { valueAsNumber: true })}
                   disabled={riskMode === 'amount'}
-                  className={`w-full bg-[#1A1A1A] border border-white/5 rounded-xl px-4 py-3 focus:border-blue-500 outline-none transition-all text-sm ${riskMode === 'amount' ? 'opacity-50 font-mono text-blue-400' : ''}`}
+                  className={`w-full bg-surface-300 border border-border-subtle rounded-xl px-4 py-3 focus:border-blue-500 outline-none transition-all text-sm text-text-100 ${riskMode === 'amount' ? 'opacity-50 font-mono text-blue-400' : ''}`}
                 />
               </div>
             </div>
@@ -613,7 +613,7 @@ export function TradeForm({ onClose, onSubmit, initialData, accountBalance = 100
           </div>
         </form>
 
-        <div className="p-4 sm:p-6 bg-[#161616] border-t border-white/5 sticky bottom-0 z-10">
+        <div className="p-4 sm:p-6 bg-surface-200 border-t border-border-subtle sticky bottom-0 z-10">
           <button 
             type="submit"
             form="trade-form"

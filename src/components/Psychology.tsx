@@ -42,26 +42,26 @@ export function Psychology({ trades }: PsychologyProps) {
             <CheckCircle2 className="w-5 h-5 text-blue-500" /> Discipline Analysis
           </h3>
           <div className="space-y-4 sm:space-y-6">
-            <div className="p-4 sm:p-6 bg-white/5 rounded-2xl border border-white/5">
+            <div className="p-4 sm:p-6 bg-surface-300/50 rounded-2xl border border-border-subtle">
               <div className="flex justify-between items-center mb-3 sm:mb-4">
-                <span className="text-gray-400 text-sm">Followed Plan</span>
+                <span className="text-text-200 text-sm">Followed Plan</span>
                 <span className="text-emerald-500 font-black text-sm">{winRateFollowed.toFixed(1)}% Win Rate</span>
               </div>
               <div className="h-1.5 sm:h-2 bg-white/5 rounded-full overflow-hidden">
                 <div className="h-full bg-emerald-500 transition-all duration-1000" style={{ width: `${winRateFollowed}%` }}></div>
               </div>
-              <p className="text-[10px] text-gray-500 mt-2 font-medium">{followedPlanTrades.length} trades followed the plan</p>
+              <p className="text-[10px] text-text-200 mt-2 font-medium">{followedPlanTrades.length} trades followed the plan</p>
             </div>
 
-            <div className="p-4 sm:p-6 bg-white/5 rounded-2xl border border-white/5">
+            <div className="p-4 sm:p-6 bg-surface-300/50 rounded-2xl border border-border-subtle">
               <div className="flex justify-between items-center mb-3 sm:mb-4">
-                <span className="text-gray-400 text-sm">Broke Plan</span>
+                <span className="text-text-200 text-sm">Broke Plan</span>
                 <span className="text-red-500 font-black text-sm">{winRateBroken.toFixed(1)}% Win Rate</span>
               </div>
               <div className="h-1.5 sm:h-2 bg-white/5 rounded-full overflow-hidden">
                 <div className="h-full bg-red-500 transition-all duration-1000" style={{ width: `${winRateBroken}%` }}></div>
               </div>
-              <p className="text-[10px] text-gray-500 mt-2 font-medium">{brokenPlanTrades.length} trades broke the plan</p>
+              <p className="text-[10px] text-text-200 mt-2 font-medium">{brokenPlanTrades.length} trades broke the plan</p>
             </div>
           </div>
         </div>
@@ -105,16 +105,16 @@ export function Psychology({ trades }: PsychologyProps) {
       </div>
 
       {/* Emotion Performance */}
-      <div className="bg-[#111] border border-white/5 rounded-3xl p-6 sm:p-8">
+      <div className="bg-surface-200 border border-border-subtle rounded-3xl p-6 sm:p-8">
         <h3 className="text-base sm:text-lg font-black tracking-tight mb-8">Performance by Emotion</h3>
         <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3 sm:gap-4">
           {EMOTIONS.map(emotion => {
             const stats = emotionPerformance.find(e => e.emotion === emotion);
             return (
-              <div key={emotion} className="p-4 bg-white/5 rounded-2xl border border-white/5 text-center">
-                <p className="text-xs text-gray-500 font-bold uppercase mb-2">{emotion}</p>
+              <div key={emotion} className="p-4 bg-surface-300/50 rounded-2xl border border-border-subtle text-center">
+                <p className="text-xs text-text-200 font-bold uppercase mb-2">{emotion}</p>
                 <p className="text-xl font-bold">{stats ? `${stats.winRate.toFixed(0)}%` : '-'}</p>
-                <p className="text-[10px] text-gray-600 mt-1">{stats ? `${stats.count} trades` : '0 trades'}</p>
+                <p className="text-[10px] text-text-200/50 mt-1">{stats ? `${stats.count} trades` : '0 trades'}</p>
               </div>
             );
           })}

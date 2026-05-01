@@ -5,6 +5,13 @@
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
   
+  --color-surface-100: var(--s-100);
+  --color-surface-200: var(--s-200);
+  --color-surface-300: var(--s-300);
+  --color-text-100: var(--t-100);
+  --color-text-200: var(--t-200);
+  --color-border-subtle: var(--b-subtle);
+
   --color-brand-50: #f0f7ff;
   --color-brand-100: #e0effe;
   --color-brand-200: #bae0fd;
@@ -19,8 +26,26 @@
 }
 
 @layer base {
+  :root {
+    --s-100: #ffffff;
+    --s-200: #f3f4f6;
+    --s-300: #e5e7eb;
+    --t-100: #000000;
+    --t-200: #4b5563;
+    --b-subtle: rgba(0, 0, 0, 0.05);
+  }
+
+  .dark {
+    --s-100: #0A0A0A;
+    --s-200: #111111;
+    --s-300: #1A1A1A;
+    --t-100: #ffffff;
+    --t-200: #9ca3af;
+    --b-subtle: rgba(255, 255, 255, 0.05);
+  }
+
   body {
-    @apply bg-[#0A0A0A] text-white antialiased selection:bg-blue-500/30;
+    @apply bg-surface-100 text-text-100 antialiased selection:bg-blue-500/30;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   }
 
@@ -41,11 +66,11 @@
 
 @layer components {
   .glass-panel {
-    @apply bg-[#111] border border-white/5 rounded-[2rem] shadow-2xl;
+    @apply bg-surface-200 border border-border-subtle rounded-[2rem] shadow-2xl;
   }
   
   .premium-card {
-    @apply relative overflow-hidden bg-[#111] border border-white/5 rounded-[2rem] transition-all duration-500 hover:border-white/10 hover:shadow-2xl hover:shadow-blue-500/5;
+    @apply relative overflow-hidden bg-surface-200 border border-border-subtle rounded-[2rem] transition-all duration-500 hover:border-border-subtle lg:hover:border-white/10 hover:shadow-2xl hover:shadow-blue-500/5;
   }
 
   .stat-value {

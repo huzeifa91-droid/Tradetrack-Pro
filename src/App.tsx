@@ -141,6 +141,38 @@ export default function App() {
     return () => unsubscribeTrades();
   }, [user]);
 
+  // Theme Management & Persistence
+  useEffect(() => {
+    const applyTheme = (theme: string) => {
+      const root = document.documentElement;
+      if (theme === 'dark') {
+        root.classList.add('dark');
+        root.setAttribute('data-theme', 'dark');
+      } else {
+        root.classList.remove('dark');
+        root.setAttribute('data-theme', 'light');
+      }
+      localStorage.setItem('theme', theme);
+    };
+
+    // Initial Resolution
+    const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const resolvedTheme = userProfile?.theme || localStorage.getItem('theme') || (systemDark ? 'dark' : 'light');
+    applyTheme(resolvedTheme as string);
+
+    // Listen for System Preference Changes
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const handleSystemChange = (e: MediaQueryListEvent) => {
+      // Only auto-switch if the user hasn't set an explicit preference
+      if (!userProfile?.theme && !localStorage.getItem('theme')) {
+        applyTheme(e.matches ? 'dark' : 'light');
+      }
+    };
+
+    mediaQuery.addEventListener('change', handleSystemChange);
+    return () => mediaQuery.removeEventListener('change', handleSystemChange);
+  }, [userProfile?.theme]);
+
   const handleAddTrade = async (tradeData: Partial<Trade>) => {
     if (!user || !userProfile) return;
 
@@ -203,7 +235,7 @@ export default function App() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0A0A0A] text-white font-sans">
+      <div className="min-h-screen bg-surface-100 text-text-100 font-sans">
       <Layout activeTab={activeTab} setActiveTab={setActiveTab} user={userProfile} onAddTrade={() => setIsTradeModalOpen(true)}>
           <main className="p-6 max-w-7xl mx-auto">
             {activeTab === 'dashboard' ? <DashboardSkeleton /> : <HistorySkeleton />}
@@ -260,15 +292,25 @@ export default function App() {
       case 'pricing':
         return <Pricing user={userProfile} onUpgrade={() => setActiveTab('dashboard')} />;
       case 'settings':
-        return <Settings user={userProfile} onNavigateToPricing={() => setActiveTab('pricing')} />;
+        return (
+          <Settings 
+            user={userProfile} 
+            onNavigateToPricing={() => setActiveTab('pricing')} 
+            onThemeChange={(theme) => {
+              if (userProfile) {
+                setUserProfile({ ...userProfile, theme });
+              }
+            }}
+          />
+        );
       default:
         return <Dashboard trades={trades} onAddTrade={() => setIsTradeModalOpen(true)} user={userProfile} onUpgrade={() => setActiveTab('pricing')} />;
     }
   };
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] text-white font-sans selection:bg-blue-500/30">
-      <Toaster position="top-right" theme="dark" richColors />
+    <div className={`min-h-screen font-sans selection:bg-blue-500/30 transition-colors duration-500 ${userProfile?.theme === 'light' ? 'bg-surface-100 text-text-100' : 'dark bg-surface-100 text-text-100'}`}>
+      <Toaster position="top-right" theme={userProfile?.theme === 'light' ? 'light' : 'dark'} richColors />
       <Layout activeTab={activeTab} setActiveTab={setActiveTab} user={userProfile} onAddTrade={() => setIsTradeModalOpen(true)}>
         <main className="max-w-7xl mx-auto">
           <AnimatePresence mode="wait">
@@ -316,18 +358,18 @@ export default function App() {
       {/* Global Delete Confirmation Modal */}
       {confirmDeleteId && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-          <div className="bg-[#111] border border-white/10 p-8 rounded-3xl max-w-sm w-full space-y-6 text-center shadow-2xl">
+          <div className="bg-surface-100 border border-border-subtle p-8 rounded-3xl max-w-sm w-full space-y-6 text-center shadow-2xl">
             <div className="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center mx-auto">
               <span className="text-3xl text-red-500">🗑️</span>
             </div>
             <div className="space-y-2">
-              <h3 className="text-xl font-bold">Delete Trade?</h3>
-              <p className="text-gray-400 text-sm">This action cannot be undone. Are you sure you want to remove this trade from your history?</p>
+              <h3 className="text-xl font-bold text-text-100">Delete Trade?</h3>
+              <p className="text-text-200 text-sm">This action cannot be undone. Are you sure you want to remove this trade from your history?</p>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <button 
                 onClick={() => setConfirmDeleteId(null)}
-                className="py-3 rounded-xl bg-white/5 hover:bg-white/10 font-bold transition-all"
+                className="py-3 rounded-xl bg-surface-300 hover:bg-surface-300 text-text-100 font-bold transition-all border border-border-subtle"
               >
                 Cancel
               </button>
@@ -336,7 +378,7 @@ export default function App() {
                   handleDeleteTrade(confirmDeleteId);
                   setConfirmDeleteId(null);
                 }}
-                className="py-3 rounded-xl bg-red-600 hover:bg-red-700 font-bold transition-all shadow-lg shadow-red-600/20"
+                className="py-3 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold transition-all shadow-lg shadow-red-600/20"
               >
                 Delete
               </button>

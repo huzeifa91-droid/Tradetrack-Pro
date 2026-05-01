@@ -38,7 +38,7 @@ export function TradeHistory({ trades, onEdit, onDelete, onView }: TradeHistoryP
               placeholder="Search trades..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="bg-[#111] border border-white/5 rounded-xl pl-10 pr-4 py-2.5 text-sm focus:border-blue-500 outline-none transition-all w-full sm:w-64"
+              className="bg-surface-200 border border-border-subtle rounded-xl pl-10 pr-4 py-2.5 text-sm focus:border-blue-500 outline-none transition-all w-full sm:w-64"
             />
           </div>
           
@@ -64,12 +64,12 @@ export function TradeHistory({ trades, onEdit, onDelete, onView }: TradeHistoryP
         </div>
       </div>
 
-      <div className="bg-[#111111] border border-white/5 rounded-2xl overflow-hidden">
+      <div className="bg-surface-200 border border-border-subtle rounded-2xl overflow-hidden">
         {/* Desktop Table */}
         <div className="hidden md:block overflow-x-auto">
           <table className="w-full text-left">
             <thead>
-              <tr className="text-gray-500 text-xs uppercase tracking-wider border-b border-white/5">
+              <tr className="text-text-200 text-xs uppercase tracking-wider border-b border-border-subtle">
                 <th className="px-6 py-4 font-medium">Date</th>
                 <th className="px-6 py-4 font-medium">Pair</th>
                 <th className="px-6 py-4 font-medium">Type</th>
@@ -80,12 +80,12 @@ export function TradeHistory({ trades, onEdit, onDelete, onView }: TradeHistoryP
                 <th className="px-6 py-4 font-medium">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/5">
+            <tbody className="divide-y divide-border-subtle">
               {filteredTrades.map((trade) => (
                 <tr 
                   key={trade.id} 
                   onClick={() => onView(trade)}
-                  className="hover:bg-white/5 transition-colors group cursor-pointer"
+                  className="hover:bg-surface-300/50 transition-colors group cursor-pointer"
                 >
                   <td className="px-6 py-4">
                     <div className="text-sm font-medium">{format(new Date(trade.timestamp), 'MMM dd, yyyy')}</div>
@@ -94,7 +94,7 @@ export function TradeHistory({ trades, onEdit, onDelete, onView }: TradeHistoryP
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
                       {trade.imageUrl && (
-                        <div className="w-10 h-10 rounded-lg overflow-hidden border border-white/10 flex-shrink-0">
+                        <div className="w-10 h-10 rounded-lg overflow-hidden border border-border-subtle flex-shrink-0">
                           <img 
                             src={trade.imageUrl} 
                             alt="Trade" 
@@ -142,7 +142,7 @@ export function TradeHistory({ trades, onEdit, onDelete, onView }: TradeHistoryP
                           e.stopPropagation();
                           onEdit(trade);
                         }}
-                        className="p-2 hover:bg-white/10 rounded-lg text-gray-400 hover:text-white transition-all"
+                        className="p-2 hover:bg-surface-300 rounded-lg text-text-200 hover:text-text-100 transition-all"
                       >
                         <Edit2 className="w-4 h-4" />
                       </button>
@@ -164,7 +164,7 @@ export function TradeHistory({ trades, onEdit, onDelete, onView }: TradeHistoryP
         </div>
 
         {/* Mobile Card Layout */}
-        <div className="md:hidden divide-y divide-white/5">
+        <div className="md:hidden divide-y divide-border-subtle">
           {filteredTrades.map((trade) => (
             <div 
               key={trade.id} 
@@ -209,7 +209,7 @@ export function TradeHistory({ trades, onEdit, onDelete, onView }: TradeHistoryP
                 </div>
               </div>
 
-              <div className="grid grid-cols-3 gap-2 py-3 px-4 bg-white/5 rounded-xl border border-white/5">
+              <div className="grid grid-cols-3 gap-2 py-3 px-4 bg-surface-300/50 rounded-xl border border-border-subtle">
                 <div>
                   <p className="text-[9px] text-gray-500 uppercase font-bold">Entry</p>
                   <p className="text-xs font-mono text-gray-300">{trade.entryPrice}</p>

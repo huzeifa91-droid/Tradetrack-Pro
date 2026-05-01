@@ -269,7 +269,7 @@ export function Dashboard({ trades, onAddTrade, user, onUpgrade }: DashboardProp
           animate={{ opacity: 1, scale: 1 }}
           className="grid grid-cols-1 lg:grid-cols-3 gap-8"
         >
-          <div className="lg:col-span-2 premium-card p-5 sm:p-8 lg:p-10 flex flex-col lg:flex-row items-center justify-between gap-6 sm:gap-10 group">
+          <div className="lg:col-span-2 premium-card p-5 sm:p-8 lg:p-10 flex flex-col lg:flex-row items-center justify-between gap-6 sm:gap-10 group bg-surface-200 border-border-subtle">
             <div className="absolute top-0 right-0 w-96 h-96 bg-blue-500/5 blur-[120px] -z-10 group-hover:bg-blue-500/10 transition-all duration-1000" />
             
             <div className="space-y-4 sm:space-y-6 flex-1 w-full relative z-10">
@@ -278,15 +278,15 @@ export function Dashboard({ trades, onAddTrade, user, onUpgrade }: DashboardProp
                   <div className="p-2 bg-blue-500/10 rounded-xl">
                     <Info className="w-5 h-5 text-blue-500" />
                   </div>
-                  <h3 className="font-black text-[10px] sm:text-xs uppercase tracking-[0.2em] text-gray-400">
+                  <h3 className="font-black text-[10px] sm:text-xs uppercase tracking-[0.2em] text-text-200">
                     {user.tradeCount >= 10 ? 'Monthly Limit Reached' : 'Monthly Trade Limit'}
                   </h3>
                 </div>
-                <span className={`text-base sm:text-lg font-black tracking-tighter ${user.tradeCount >= 10 ? 'text-red-500' : 'text-white'}`}>
+                <span className={`text-base sm:text-lg font-black tracking-tighter ${user.tradeCount >= 10 ? 'text-red-500' : 'text-text-100'}`}>
                   {user.tradeCount || 0} <span className="text-gray-500 text-xs sm:text-sm">/ 10</span>
                 </span>
               </div>
-              <div className="h-4 bg-white/5 rounded-full overflow-hidden p-1 border border-white/5">
+              <div className="h-4 bg-surface-300 rounded-full overflow-hidden p-1 border border-border-subtle">
                 <motion.div 
                   initial={{ width: 0 }}
                   animate={{ width: `${Math.min(((user.tradeCount || 0) / 10) * 100, 100)}%` }}
@@ -296,7 +296,7 @@ export function Dashboard({ trades, onAddTrade, user, onUpgrade }: DashboardProp
                 />
               </div>
               <div className="space-y-2">
-                <p className="text-sm text-gray-400 font-bold tracking-tight">
+                <p className="text-sm text-text-200 font-bold tracking-tight">
                   {user.tradeCount >= 10 
                     ? "Upgrade to Premium for unlimited trades and insights" 
                     : user.tradeCount >= 5 
@@ -387,16 +387,16 @@ export function Dashboard({ trades, onAddTrade, user, onUpgrade }: DashboardProp
                 <div className="p-2 bg-blue-500/10 rounded-xl">
                   <BarChart3 className="w-5 h-5 text-blue-500" />
                 </div>
-                <h3 className="text-lg sm:text-xl font-black tracking-tighter">Equity Curve</h3>
+                <h3 className="text-lg sm:text-xl font-black tracking-tighter text-text-100">Equity Curve</h3>
               </div>
               <p className="text-gray-500 text-xs sm:text-sm font-medium">Cumulative profit over time</p>
             </div>
-            <div className="flex items-center gap-1 bg-white/5 p-1 rounded-xl border border-white/5 self-start sm:self-center overflow-x-auto max-w-full">
+            <div className="flex items-center gap-1 bg-surface-300 p-1 rounded-xl border border-border-subtle self-start sm:self-center overflow-x-auto max-w-full">
               {['7D', '1M', '3M', 'ALL'].map((range) => (
                 <button 
                   key={range}
                   className={`px-3 sm:px-4 py-2 rounded-lg text-[9px] sm:text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${
-                    range === 'ALL' ? 'bg-white text-black shadow-lg' : 'text-gray-500 hover:text-white'
+                    range === 'ALL' ? 'bg-blue-600 text-white shadow-lg' : 'text-text-200 hover:text-text-100'
                   }`}
                 >
                   {range}
@@ -498,7 +498,7 @@ export function Dashboard({ trades, onAddTrade, user, onUpgrade }: DashboardProp
                     initial={{ opacity: 0, x: 20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: i * 0.1 }}
-                    className="p-6 rounded-[2rem] bg-white/5 border border-white/5 hover:bg-white/10 transition-all group/insight"
+                    className="p-6 rounded-[2rem] bg-surface-300/50 border border-border-subtle hover:bg-surface-300 transition-all group/insight"
                   >
                     <div className="flex items-start gap-5">
                       <div className={`p-4 rounded-2xl ${insight.bg} ${insight.color} group-hover/insight:scale-110 transition-transform duration-500`}>
@@ -524,7 +524,7 @@ export function Dashboard({ trades, onAddTrade, user, onUpgrade }: DashboardProp
           </div>
           
           {user?.plan === 'premium' && (
-            <button className="mt-8 w-full py-4 rounded-2xl bg-white/5 border border-white/5 text-[10px] font-black uppercase tracking-widest text-gray-400 hover:bg-white/10 hover:text-white transition-all">
+            <button className="mt-8 w-full py-4 rounded-2xl bg-surface-300/50 border border-border-subtle text-[10px] font-black uppercase tracking-widest text-text-200 hover:bg-surface-300 hover:text-text-100 transition-all">
               Refresh Analysis
             </button>
           )}
@@ -533,7 +533,7 @@ export function Dashboard({ trades, onAddTrade, user, onUpgrade }: DashboardProp
 
       {/* Recent Trades */}
       <div className="premium-card overflow-hidden group">
-        <div className="p-8 lg:p-10 border-b border-white/5 flex items-center justify-between">
+        <div className="p-8 lg:p-10 border-b border-border-subtle flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-blue-500/10 rounded-xl">
               <History className="w-5 h-5 text-blue-500" />
@@ -550,7 +550,7 @@ export function Dashboard({ trades, onAddTrade, user, onUpgrade }: DashboardProp
         <div className="hidden md:block overflow-x-auto">
           <table className="w-full text-left">
             <thead>
-              <tr className="text-gray-500 text-[10px] font-black uppercase tracking-[0.2em] border-b border-white/5">
+              <tr className="text-text-200 text-[10px] font-black uppercase tracking-[0.2em] border-b border-border-subtle">
                 <th className="px-10 py-6">Asset Pair</th>
                 <th className="px-10 py-6">Type</th>
                 <th className="px-10 py-6">Entry</th>
@@ -559,18 +559,18 @@ export function Dashboard({ trades, onAddTrade, user, onUpgrade }: DashboardProp
                 <th className="px-10 py-6 text-right">Timestamp</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/5">
+            <tbody className="divide-y divide-border-subtle">
               {trades.slice(0, 5).map((trade, i) => (
                 <motion.tr 
                   key={trade.id}
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: i * 0.05 }}
-                  className="hover:bg-white/[0.02] transition-colors group/row"
+                  className="hover:bg-surface-300/30 transition-colors group/row"
                 >
                   <td className="px-10 py-6">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center font-black text-[10px] group-hover/row:bg-blue-500/10 group-hover/row:text-blue-500 transition-colors">
+                      <div className="w-10 h-10 rounded-xl bg-surface-300 flex items-center justify-center font-black text-[10px] group-hover/row:bg-blue-500/10 group-hover/row:text-blue-500 transition-colors">
                         {trade.pair.substring(0, 2)}
                       </div>
                       <span className="font-bold tracking-tight">{trade.pair}</span>
@@ -583,7 +583,7 @@ export function Dashboard({ trades, onAddTrade, user, onUpgrade }: DashboardProp
                       {trade.type}
                     </span>
                   </td>
-                  <td className="px-10 py-6 font-mono text-sm text-gray-400">{trade.entryPrice}</td>
+                  <td className="px-10 py-6 font-mono text-sm text-text-200">{trade.entryPrice}</td>
                   <td className="px-10 py-6">
                     <div className="flex justify-center">
                       <span className={`px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest ${
@@ -599,7 +599,7 @@ export function Dashboard({ trades, onAddTrade, user, onUpgrade }: DashboardProp
                   }`}>
                     {(trade.profitLoss || 0) >= 0 ? '+' : ''}{trade.profitLoss}
                   </td>
-                  <td className="px-10 py-6 text-right text-gray-500 font-mono text-[10px] uppercase tracking-widest">
+                  <td className="px-10 py-6 text-right text-text-200 font-mono text-[10px] uppercase tracking-widest">
                     {format(new Date(trade.timestamp), 'MMM dd, HH:mm')}
                   </td>
                 </motion.tr>
@@ -609,9 +609,9 @@ export function Dashboard({ trades, onAddTrade, user, onUpgrade }: DashboardProp
         </div>
 
         {/* Mobile Card Layout */}
-        <div className="md:hidden divide-y divide-white/5">
+        <div className="md:hidden divide-y divide-border-subtle">
           {trades.slice(0, 5).map((trade) => (
-            <div key={trade.id} className="p-6 flex items-center justify-between active:bg-white/5 transition-colors">
+            <div key={trade.id} className="p-6 flex items-center justify-between active:bg-surface-300/50 transition-colors">
               <div className="flex items-center gap-4">
                 <div className={`w-12 h-12 rounded-2xl flex items-center justify-center font-black text-xs ${
                   trade.type === 'buy' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-red-500/10 text-red-500'
