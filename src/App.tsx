@@ -18,6 +18,7 @@ import {
 } from 'firebase/firestore';
 import { auth, db, OperationType, handleFirestoreError } from './firebase';
 import { Trade, UserProfile } from './types';
+import { AlertCircle } from 'lucide-react';
 import { Layout } from './components/Layout';
 import { Dashboard } from './components/Dashboard';
 import { TradeHistory } from './components/TradeHistory';
@@ -352,19 +353,19 @@ export default function App() {
 
       {/* Global Delete Confirmation Modal */}
       {confirmDeleteId && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-          <div className="bg-surface-100 border border-border-subtle p-8 rounded-3xl max-w-sm w-full space-y-6 text-center shadow-2xl">
-            <div className="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center mx-auto">
-              <span className="text-3xl text-red-500">🗑️</span>
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+          <div className="bg-surface-100 border border-border-subtle p-8 rounded-2xl max-w-sm w-full space-y-6 text-center shadow-sm">
+            <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mx-auto">
+              <AlertCircle className="w-6 h-6 text-red-600" />
             </div>
-            <div className="space-y-2">
-              <h3 className="text-xl font-bold text-text-100">Delete Trade?</h3>
-              <p className="text-text-200 text-sm">This action cannot be undone. Are you sure you want to remove this trade from your history?</p>
+            <div className="space-y-1">
+              <h3 className="text-lg font-semibold text-text-100">Delete Trade?</h3>
+              <p className="text-text-200 text-xs font-medium">This action cannot be undone. Are you sure you want to remove this trade from your history?</p>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <button 
                 onClick={() => setConfirmDeleteId(null)}
-                className="py-3 rounded-xl bg-surface-300 hover:bg-surface-300 text-text-100 font-bold transition-all border border-border-subtle"
+                className="py-2.5 rounded-xl bg-surface-200 hover:bg-surface-300 text-text-100 font-semibold text-sm transition-all border border-border-subtle"
               >
                 Cancel
               </button>
@@ -373,7 +374,7 @@ export default function App() {
                   handleDeleteTrade(confirmDeleteId);
                   setConfirmDeleteId(null);
                 }}
-                className="py-3 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold transition-all shadow-lg shadow-red-600/20"
+                className="py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white font-semibold text-sm transition-all"
               >
                 Delete
               </button>

@@ -270,7 +270,7 @@ export function TradeForm({ onClose, onSubmit, initialData, accountBalance = 100
         className="relative w-full max-w-2xl bg-surface-100 border-x border-t sm:border border-border-subtle rounded-t-[2.5rem] sm:rounded-[2.5rem] shadow-2xl overflow-hidden h-[90vh] sm:h-auto sm:max-h-[90vh] flex flex-col mt-auto sm:mt-0"
       >
         <div className="px-6 py-5 sm:p-6 border-b border-border-subtle flex items-center justify-between bg-surface-200 sticky top-0 z-10 shrink-0">
-          <h2 className="text-lg sm:text-xl font-black tracking-tight text-text-100">{initialData ? 'Edit Trade' : 'Record New Trade'}</h2>
+          <h2 className="text-lg sm:text-xl font-semibold tracking-tight text-text-100">{initialData ? 'Edit Trade' : 'Record New Trade'}</h2>
           <button onClick={onClose} className="p-2 hover:bg-surface-300 rounded-full transition-colors">
             <X className="w-5 h-5 text-text-200" />
           </button>
@@ -278,13 +278,13 @@ export function TradeForm({ onClose, onSubmit, initialData, accountBalance = 100
 
         <form id="trade-form" onSubmit={handleSubmit(onSubmit)} className="p-6 sm:p-8 overflow-y-auto space-y-6 sm:space-y-8 flex-1">
           {userPlan === 'free' && (
-            <div className={`p-4 rounded-2xl border flex items-center gap-3 ${tradeCount >= 10 ? 'bg-red-500/10 border-red-500/20 text-red-500' : 'bg-blue-500/10 border-blue-500/20 text-blue-500'}`}>
+            <div className={`p-4 rounded-2xl border flex items-center gap-3 ${tradeCount >= 10 ? 'bg-red-500/10 border-red-500/20 text-red-600' : 'bg-brand-500/10 border-brand-500/20 text-brand-600'}`}>
               <AlertCircle className="w-5 h-5 flex-shrink-0" />
               <div className="space-y-0.5">
-                <p className="text-xs font-bold uppercase tracking-wider">
+                <p className="text-xs font-semibold uppercase tracking-wider">
                   {tradeCount >= 10 ? 'Monthly Limit Reached' : 'Free Plan Active'}
                 </p>
-                <p className="text-[10px] opacity-80 leading-relaxed">
+                <p className="text-[10px] opacity-80 leading-relaxed font-medium">
                   {tradeCount >= 10 
                     ? "Free limit reached. Upgrade to continue using TradeTrack Pro." 
                     : `You have used ${tradeCount} of your 10 lifetime trades.`}
@@ -309,20 +309,20 @@ export function TradeForm({ onClose, onSubmit, initialData, accountBalance = 100
 
             <div className="space-y-2">
               <label className="text-xs sm:text-sm font-medium text-text-200 flex items-center gap-2">
-                <TrendingUp className="w-4 h-4" /> Trade Type
+                <TrendingUp className="w-4 h-4 text-brand-500" /> Trade Type
               </label>
               <div className="grid grid-cols-2 gap-2 p-1 bg-surface-300 rounded-xl border border-border-subtle">
                 <button
                   type="button"
                   onClick={() => setValue('type', 'buy')}
-                  className={`py-2.5 rounded-lg text-sm font-bold transition-all ${type === 'buy' ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20' : 'text-text-200 hover:text-text-100'}`}
+                  className={`py-2 rounded-lg text-sm font-semibold transition-all ${type === 'buy' ? 'bg-emerald-500 text-white shadow-sm' : 'text-text-200 hover:text-text-100'}`}
                 >
                   BUY
                 </button>
                 <button
                   type="button"
                   onClick={() => setValue('type', 'sell')}
-                  className={`py-2.5 rounded-lg text-sm font-bold transition-all ${type === 'sell' ? 'bg-red-500 text-white shadow-lg shadow-red-500/20' : 'text-text-200 hover:text-text-100'}`}
+                  className={`py-2 rounded-lg text-sm font-semibold transition-all ${type === 'sell' ? 'bg-red-500 text-white shadow-sm' : 'text-text-200 hover:text-text-100'}`}
                 >
                   SELL
                 </button>
@@ -364,21 +364,21 @@ export function TradeForm({ onClose, onSubmit, initialData, accountBalance = 100
           {/* Risk Management Section */}
           <div className="space-y-4 pt-4 border-t border-border-subtle">
             <div className="flex items-center justify-between">
-              <h3 className="text-xs font-bold uppercase tracking-widest text-text-200 flex items-center gap-2">
-                <AlertCircle className="w-4 h-4" /> Risk Management
+              <h3 className="text-[10px] font-semibold uppercase tracking-wider text-text-200 flex items-center gap-2">
+                <AlertCircle className="w-3.5 h-3.5 text-brand-500" /> Risk Management
               </h3>
               <div className="flex bg-surface-300 p-1 rounded-lg border border-border-subtle">
                 <button
                   type="button"
                   onClick={() => setValue('riskMode', 'amount')}
-                  className={`px-3 py-1 text-[10px] font-bold rounded-md transition-all ${riskMode === 'amount' ? 'bg-blue-600 text-white' : 'text-gray-500'}`}
+                  className={`px-3 py-1 text-[10px] font-semibold rounded-md transition-all ${riskMode === 'amount' ? 'bg-brand-500 text-white' : 'text-text-200'}`}
                 >
                   RISK $
                 </button>
                 <button
                   type="button"
                   onClick={() => setValue('riskMode', 'lot')}
-                  className={`px-3 py-1 text-[10px] font-bold rounded-md transition-all ${riskMode === 'lot' ? 'bg-blue-600 text-white' : 'text-gray-500'}`}
+                  className={`px-3 py-1 text-[10px] font-semibold rounded-md transition-all ${riskMode === 'lot' ? 'bg-brand-500 text-white' : 'text-text-200'}`}
                 >
                   LOT SIZE
                 </button>
@@ -388,26 +388,26 @@ export function TradeForm({ onClose, onSubmit, initialData, accountBalance = 100
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
-                  <label className="text-xs sm:text-sm font-medium text-gray-400">Risk Amount ($)</label>
-                  {riskMode === 'lot' && <span className="text-[10px] text-blue-500 font-bold uppercase tracking-widest">Auto</span>}
+                  <label className="text-xs sm:text-sm font-medium text-text-200">Risk Amount ($)</label>
+                  {riskMode === 'lot' && <span className="text-[10px] text-brand-500 font-semibold uppercase tracking-wider">Auto</span>}
                 </div>
                 <input 
                   type="number" step="any"
                   {...register('riskAmount', { valueAsNumber: true })}
                   disabled={riskMode === 'lot'}
-                  className={`w-full bg-surface-300 border border-border-subtle rounded-xl px-4 py-3 focus:border-blue-500 outline-none transition-all text-sm text-text-100 ${riskMode === 'lot' ? 'opacity-50 font-mono text-blue-400' : ''}`}
+                  className={`w-full bg-surface-300 border border-border-subtle rounded-xl px-4 py-3 focus:border-brand-500 outline-none transition-all text-sm text-text-100 font-semibold ${riskMode === 'lot' ? 'opacity-50 text-brand-500' : ''}`}
                 />
               </div>
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
-                  <label className="text-xs sm:text-sm font-medium text-gray-400">Lot Size</label>
-                  {riskMode === 'amount' && <span className="text-[10px] text-blue-500 font-bold uppercase tracking-widest">Auto</span>}
+                  <label className="text-xs sm:text-sm font-medium text-text-200">Lot Size</label>
+                  {riskMode === 'amount' && <span className="text-[10px] text-brand-500 font-semibold uppercase tracking-wider">Auto</span>}
                 </div>
                 <input 
                   type="number" step="0.01"
                   {...register('lotSize', { valueAsNumber: true })}
                   disabled={riskMode === 'amount'}
-                  className={`w-full bg-surface-300 border border-border-subtle rounded-xl px-4 py-3 focus:border-blue-500 outline-none transition-all text-sm text-text-100 ${riskMode === 'amount' ? 'opacity-50 font-mono text-blue-400' : ''}`}
+                  className={`w-full bg-surface-300 border border-border-subtle rounded-xl px-4 py-3 focus:border-brand-500 outline-none transition-all text-sm text-text-100 font-semibold ${riskMode === 'amount' ? 'opacity-50 text-brand-500' : ''}`}
                 />
               </div>
             </div>
@@ -632,17 +632,15 @@ export function TradeForm({ onClose, onSubmit, initialData, accountBalance = 100
           </div>
         </form>
 
-        <div className="p-4 sm:p-6 bg-surface-200 border-t border-border-subtle sticky bottom-0 z-10">
-          <button 
-            type="submit"
-            form="trade-form"
-            onClick={handleSubmit(onSubmit)}
-            disabled={isUploading}
-            className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white py-4 rounded-2xl font-bold text-lg shadow-xl shadow-blue-600/20 transition-all active:scale-[0.98]"
-          >
-            {isUploading ? 'Uploading Screenshot...' : (initialData ? 'Update Trade' : 'Save Trade')}
-          </button>
-        </div>
+          <div className="p-4 sm:p-6 bg-surface-200 border-t border-border-subtle sticky bottom-0 z-10 shrink-0">
+            <button 
+              type="submit"
+              disabled={isUploading}
+              className="w-full bg-brand-500 hover:bg-brand-600 disabled:opacity-50 disabled:cursor-not-allowed text-white py-4 rounded-xl font-semibold text-base shadow-sm transition-all active:scale-[0.98]"
+            >
+              {isUploading ? 'Uploading Screenshot...' : (initialData ? 'Update Trade' : 'Record Trade')}
+            </button>
+          </div>
       </motion.div>
     </div>
   );

@@ -70,14 +70,14 @@ export function Layout({ children, activeTab, setActiveTab, user, onAddTrade }: 
       {/* Desktop Sidebar */}
       <aside className="hidden lg:flex w-72 bg-surface-200 border-r border-border-subtle flex-col fixed h-full z-20">
         <div className="p-8 flex items-center gap-4">
-          <div className="w-12 h-12 bg-surface-300 rounded-2xl flex items-center justify-center shadow-2xl shadow-blue-500/10 group cursor-pointer overflow-hidden border border-border-subtle">
-            <img src="/favicon.svg" alt="TradeTrack Pro" className="w-full h-full object-cover group-hover:scale-110 transition-transform" />
+          <div className="w-12 h-12 bg-surface-300 rounded-xl flex items-center justify-center group cursor-pointer overflow-hidden border border-border-subtle">
+            <img src="/favicon.svg" alt="TradeTrack Pro" className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
           </div>
           <div>
-            <h1 className="text-xl font-black tracking-tighter text-text-100">TradeTrack<span className="text-[#90be6d]">Pro</span></h1>
+            <h1 className="text-xl font-semibold tracking-tight text-text-100">TradeTrack<span className="text-brand-500">Pro</span></h1>
             <div className="flex items-center gap-1">
-              <div className="w-1 h-1 bg-[#90be6d] rounded-full" />
-              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-text-200">Professional</span>
+              <div className="w-1 h-1 bg-brand-500 rounded-full" />
+              <span className="text-[10px] font-semibold uppercase tracking-wider text-text-200">Accountability</span>
             </div>
           </div>
         </div>
@@ -87,18 +87,18 @@ export function Layout({ children, activeTab, setActiveTab, user, onAddTrade }: 
             <button
               key={item.id}
               onClick={() => handleNavClick(item.id)}
-              className={`w-full flex items-center gap-4 px-5 py-4 rounded-2xl transition-all duration-300 group ${
+              className={`w-full flex items-center gap-4 px-5 py-3 rounded-xl transition-all duration-200 group ${
                 activeTab === item.id 
-                  ? 'bg-blue-600 text-white shadow-xl shadow-blue-600/20 font-bold' 
+                  ? 'bg-brand-500 text-white font-semibold' 
                   : 'text-text-200 hover:text-text-100 hover:bg-surface-300'
               }`}
             >
-              <item.icon className={`w-5 h-5 transition-transform duration-300 ${activeTab === item.id ? 'scale-110' : 'group-hover:scale-110'}`} />
-              <span className="text-sm tracking-tight">{item.label}</span>
+              <item.icon className={`w-5 h-5 ${activeTab === item.id ? 'opacity-100' : 'opacity-70 group-hover:opacity-100'}`} />
+              <span className="text-sm font-medium tracking-tight">{item.label}</span>
               {activeTab === item.id && (
                 <motion.div 
                   layoutId="activeNav"
-                  className="ml-auto w-1.5 h-1.5 bg-white rounded-full shadow-[0_0_10px_white]"
+                  className="ml-auto w-1 h-1 bg-white rounded-full"
                 />
               )}
             </button>
@@ -106,24 +106,24 @@ export function Layout({ children, activeTab, setActiveTab, user, onAddTrade }: 
         </nav>
 
         <div className="p-6 border-t border-border-subtle space-y-6">
-          <div className="bg-surface-300 rounded-3xl p-4 flex items-center gap-4 border border-border-subtle">
+          <div className="bg-surface-300 rounded-2xl p-4 flex items-center gap-3 border border-border-subtle">
             <div className="relative">
-              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-lg font-black shadow-xl text-white">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-500 to-purple-600 flex items-center justify-center text-base font-semibold text-white">
                 {user?.displayName?.[0] || user?.email?.[0] || 'U'}
               </div>
               {user?.plan === 'premium' && (
-                <div className="absolute -top-2 -right-2 bg-yellow-500 rounded-full p-1 border-4 border-surface-200 shadow-lg">
-                  <Crown className="w-3 h-3 text-black" />
+                <div className="absolute -top-1.5 -right-1.5 bg-yellow-500 rounded-full p-0.5 border-2 border-surface-200 shadow-sm">
+                  <Crown className="w-2.5 h-2.5 text-black" />
                 </div>
               )}
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">
-                <p className="text-sm font-bold truncate text-text-100">{user?.displayName || 'Trader'}</p>
+                <p className="text-sm font-semibold truncate text-text-100">{user?.displayName || 'Trader'}</p>
                 {user?.plan === 'premium' ? (
-                  <span className="text-[8px] bg-yellow-500/10 text-yellow-500 px-2 py-0.5 rounded-full font-black uppercase tracking-widest border border-yellow-500/20">Pro</span>
+                  <span className="text-[9px] bg-yellow-500/10 text-yellow-600 px-2 py-0.5 rounded-full font-semibold uppercase tracking-wider border border-yellow-500/20">Pro</span>
                 ) : (
-                  <span className="text-[8px] bg-surface-100 text-text-200 px-2 py-0.5 rounded-full font-black uppercase tracking-widest border border-border-subtle">Free</span>
+                  <span className="text-[9px] bg-surface-100 text-text-200 px-2 py-0.5 rounded-full font-semibold uppercase tracking-wider border border-border-subtle">Free</span>
                 )}
               </div>
               <p className="text-[10px] text-text-200 truncate font-medium">{user?.email}</p>
@@ -132,7 +132,7 @@ export function Layout({ children, activeTab, setActiveTab, user, onAddTrade }: 
           
           <button 
             onClick={handleSignOut}
-            className="w-full flex items-center justify-center gap-3 px-4 py-4 text-text-200 hover:text-red-400 hover:bg-red-500/5 rounded-2xl transition-all font-bold text-xs uppercase tracking-widest"
+            className="w-full flex items-center justify-center gap-2 px-4 py-3 text-text-200 hover:text-red-500 hover:bg-red-500/5 rounded-xl transition-all font-semibold text-[11px] uppercase tracking-wider"
           >
             <LogOut className="w-4 h-4" />
             Sign Out
@@ -141,18 +141,18 @@ export function Layout({ children, activeTab, setActiveTab, user, onAddTrade }: 
       </aside>
 
       {/* Mobile Top Header */}
-        <header className="lg:hidden fixed top-0 left-0 right-0 h-20 bg-surface-100/80 backdrop-blur-xl border-b border-border-subtle z-40 px-6 flex items-center justify-between">
+        <header className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-surface-100/80 backdrop-blur-xl border-b border-border-subtle z-40 px-6 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-surface-200 rounded-xl flex items-center justify-center shadow-lg overflow-hidden border border-border-subtle">
+          <div className="w-9 h-9 bg-surface-200 rounded-lg flex items-center justify-center overflow-hidden border border-border-subtle">
             <img src="/favicon.svg" alt="TradeTrack Pro" className="w-full h-full object-cover" />
           </div>
-          <h1 className="text-lg font-black tracking-tighter">TradeTrack<span className="text-[#90be6d]">Pro</span></h1>
+          <h1 className="text-lg font-semibold tracking-tight">TradeTrack<span className="text-brand-500">Pro</span></h1>
         </div>
         <button 
           onClick={() => setIsMenuOpen(true)}
-          className="w-10 h-10 flex items-center justify-center bg-surface-200 rounded-xl text-text-200 hover:text-text-100 transition-colors border border-border-subtle"
+          className="w-9 h-9 flex items-center justify-center bg-surface-200 rounded-lg text-text-200 hover:text-text-100 transition-colors border border-border-subtle"
         >
-          <Menu className="w-6 h-6" />
+          <Menu className="w-5 h-5" />
         </button>
       </header>
 
@@ -215,27 +215,27 @@ export function Layout({ children, activeTab, setActiveTab, user, onAddTrade }: 
       {/* Main Content Area */}
       <div className="flex-1 lg:ml-72 pb-24 lg:pb-0 pt-20 lg:pt-0">
         {/* Desktop Header */}
-        <header className="hidden lg:flex h-20 border-b border-border-subtle bg-surface-100/80 backdrop-blur-xl sticky top-0 z-10 px-10 items-center justify-between">
-          <h2 className="text-xl font-black tracking-tighter capitalize text-text-100">{activeTab.replace('-', ' ')}</h2>
+        <header className="hidden lg:flex h-16 border-b border-border-subtle bg-surface-100/80 backdrop-blur-xl sticky top-0 z-10 px-10 items-center justify-between">
+          <h2 className="text-lg font-semibold tracking-tight capitalize text-text-100">{activeTab.replace('-', ' ')}</h2>
           <div className="flex items-center gap-6">
-            <div className="flex bg-surface-200 rounded-2xl p-1 border border-border-subtle">
+            <div className="flex bg-surface-200 rounded-xl p-1 border border-border-subtle">
               <button 
                 onClick={() => setActiveTab('pricing')}
-                className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'pricing' ? 'bg-blue-600 text-white shadow-lg' : 'text-text-200 hover:text-text-100'}`}
+                className={`px-4 py-1.5 rounded-lg text-[10px] font-semibold uppercase tracking-wider transition-all ${activeTab === 'pricing' ? 'bg-brand-500 text-white shadow-sm' : 'text-text-200 hover:text-text-100'}`}
               >
                 Pricing
               </button>
               <button 
                 onClick={() => setActiveTab('settings')}
-                className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'settings' ? 'bg-blue-600 text-white shadow-lg' : 'text-text-200 hover:text-text-100'}`}
+                className={`px-4 py-1.5 rounded-lg text-[10px] font-semibold uppercase tracking-wider transition-all ${activeTab === 'settings' ? 'bg-brand-500 text-white shadow-sm' : 'text-text-200 hover:text-text-100'}`}
               >
                 Settings
               </button>
             </div>
-            <div className="w-px h-8 bg-border-subtle" />
+            <div className="w-px h-6 bg-border-subtle" />
             <button 
               onClick={onAddTrade}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-2xl font-black text-xs uppercase tracking-widest transition-all shadow-xl shadow-blue-600/20 active:scale-95 flex items-center gap-2"
+              className="bg-brand-500 hover:bg-brand-600 text-white px-5 py-2 rounded-xl font-semibold text-xs uppercase tracking-wider transition-all shadow-sm active:scale-95 flex items-center gap-2"
             >
               <Plus className="w-4 h-4" />
               New Trade

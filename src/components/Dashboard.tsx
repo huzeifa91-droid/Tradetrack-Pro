@@ -232,11 +232,11 @@ export function Dashboard({ trades, onAddTrade, user, onUpgrade }: DashboardProp
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
         <div>
           <div className="flex items-center gap-3">
-            <h1 className="text-2xl sm:text-3xl lg:text-5xl font-black tracking-tighter">Welcome, {user?.displayName?.split(' ')[0] || 'Trader'}</h1>
+            <h1 className="text-2xl sm:text-3xl lg:text-5xl font-semibold tracking-tight">Welcome, {user?.displayName?.split(' ')[0] || 'Trader'}</h1>
             {user?.plan === 'premium' && (
-              <div className="flex items-center gap-1.5 bg-yellow-500/10 text-yellow-500 px-3 py-1 rounded-full border border-yellow-500/20 shadow-lg shadow-yellow-500/5">
+              <div className="flex items-center gap-1.5 bg-yellow-500/10 text-yellow-600 px-3 py-1 rounded-full border border-yellow-500/20 shadow-sm">
                 <Crown className="w-3.5 h-3.5" />
-                <span className="text-[10px] font-black uppercase tracking-[0.2em]">Premium</span>
+                <span className="text-[10px] font-semibold uppercase tracking-wider">Premium</span>
               </div>
             )}
           </div>
@@ -246,7 +246,7 @@ export function Dashboard({ trades, onAddTrade, user, onUpgrade }: DashboardProp
           {user?.plan === 'free' && (
             <button 
               onClick={handleUpgrade}
-              className="hidden lg:flex items-center gap-3 bg-yellow-500/10 text-yellow-500 px-6 py-3 rounded-2xl text-xs font-black uppercase tracking-widest border border-yellow-500/20 hover:bg-yellow-500/20 transition-all shadow-xl shadow-yellow-500/5"
+              className="hidden lg:flex items-center gap-3 bg-surface-200 text-yellow-600 px-6 py-3 rounded-2xl text-[10px] font-semibold uppercase tracking-wider border border-border-subtle hover:bg-surface-300 transition-all shadow-sm"
             >
               <Crown className="w-4 h-4" />
               Upgrade to Pro
@@ -254,7 +254,7 @@ export function Dashboard({ trades, onAddTrade, user, onUpgrade }: DashboardProp
           )}
           <button 
             onClick={onAddTrade}
-            className="hidden sm:flex bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-2xl font-black text-xs uppercase tracking-widest items-center gap-3 transition-all shadow-2xl shadow-blue-600/30 active:scale-95"
+            className="hidden sm:flex bg-brand-500 hover:bg-brand-600 text-white px-8 py-3.5 rounded-2xl font-semibold text-xs uppercase tracking-wider items-center gap-2 transition-all shadow-sm active:scale-95"
           >
             <Plus className="w-5 h-5" />
             New Trade
@@ -275,35 +275,35 @@ export function Dashboard({ trades, onAddTrade, user, onUpgrade }: DashboardProp
             <div className="space-y-4 sm:space-y-6 flex-1 w-full relative z-10">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 bg-blue-500/10 rounded-xl">
-                    <Info className="w-5 h-5 text-blue-500" />
+                  <div className="p-2 bg-brand-500/10 rounded-xl">
+                    <Info className="w-5 h-5 text-brand-500" />
                   </div>
-                  <h3 className="font-black text-[10px] sm:text-xs uppercase tracking-[0.2em] text-text-200">
+                  <h3 className="font-semibold text-[11px] uppercase tracking-wider text-text-200">
                     {user.tradeCount >= 10 ? 'Monthly Limit Reached' : 'Monthly Trade Limit'}
                   </h3>
                 </div>
-                <span className={`text-base sm:text-lg font-black tracking-tighter ${user.tradeCount >= 10 ? 'text-red-500' : 'text-text-100'}`}>
+                <span className={`text-base sm:text-lg font-semibold tracking-tight ${user.tradeCount >= 10 ? 'text-red-500' : 'text-text-100'}`}>
                   {user.tradeCount || 0} <span className="text-gray-500 text-xs sm:text-sm">/ 10</span>
                 </span>
               </div>
-              <div className="h-4 bg-surface-300 rounded-full overflow-hidden p-1 border border-border-subtle">
+              <div className="h-3 bg-surface-300 rounded-full overflow-hidden p-0.5 border border-border-subtle">
                 <motion.div 
                   initial={{ width: 0 }}
                   animate={{ width: `${Math.min(((user.tradeCount || 0) / 10) * 100, 100)}%` }}
                   className={`h-full rounded-full transition-all duration-1000 ${
-                    (user.tradeCount || 0) >= 10 ? 'bg-red-500 shadow-[0_0_20px_rgba(239,68,68,0.5)]' : (user.tradeCount || 0) >= 5 ? 'bg-yellow-500 shadow-[0_0_20px_rgba(234,179,8,0.5)]' : 'bg-blue-500 shadow-[0_0_20px_rgba(59,130,246,0.5)]'
+                    (user.tradeCount || 0) >= 10 ? 'bg-red-500' : (user.tradeCount || 0) >= 5 ? 'bg-yellow-500' : 'bg-brand-500'
                   }`}
                 />
               </div>
-              <div className="space-y-2">
-                <p className="text-sm text-text-200 font-bold tracking-tight">
+              <div className="space-y-1">
+                <p className="text-sm text-text-100 font-semibold tracking-tight">
                   {user.tradeCount >= 10 
                     ? "Upgrade to Premium for unlimited trades and insights" 
                     : user.tradeCount >= 5 
-                      ? "You're reached your monthly limit" 
+                      ? "You've reached your monthly limit" 
                       : valueMessage}
                 </p>
-                <div className="flex items-center gap-2 text-[10px] text-gray-500 font-black uppercase tracking-widest">
+                <div className="flex items-center gap-2 text-[10px] text-gray-500 font-semibold uppercase tracking-wider">
                   <Calendar className="w-3 h-3" />
                   Resets in {Math.max(0, 30 - Math.floor((new Date().getTime() - (user.subscriptionStartDate ? new Date(user.subscriptionStartDate).getTime() : 0)) / (1000 * 60 * 60 * 24)))} days
                 </div>
@@ -311,7 +311,7 @@ export function Dashboard({ trades, onAddTrade, user, onUpgrade }: DashboardProp
             </div>
             <button 
               onClick={handleUpgrade}
-              className="w-full lg:w-auto bg-white text-black px-10 py-5 rounded-3xl font-black text-xs uppercase tracking-widest hover:bg-blue-600 hover:text-white transition-all duration-500 shadow-2xl shadow-white/5 active:scale-95 flex items-center justify-center gap-3 group/btn"
+              className="w-full lg:w-auto bg-text-100 text-surface-100 px-10 py-4 rounded-xl font-semibold text-xs uppercase tracking-wider hover:bg-brand-500 transition-all duration-300 shadow-sm active:scale-95 flex items-center justify-center gap-2 group/btn"
             >
               <Crown className="w-5 h-5 group-hover/btn:rotate-12 transition-transform" />
               Upgrade to Premium
@@ -322,22 +322,22 @@ export function Dashboard({ trades, onAddTrade, user, onUpgrade }: DashboardProp
             <div className="absolute -right-8 -top-8 opacity-10 group-hover:scale-110 transition-transform duration-700">
               <TrendingUp className="w-32 h-32" />
             </div>
-            <div className="flex items-center gap-3 text-blue-400">
-              <div className="p-2 bg-blue-500/10 rounded-xl">
+            <div className="flex items-center gap-3 text-brand-500">
+              <div className="p-2 bg-brand-500/10 rounded-xl">
                 <TrendingUp className="w-5 h-5" />
               </div>
-              <span className="text-[10px] font-black uppercase tracking-[0.2em]">Pro Tip</span>
+              <span className="text-[11px] font-semibold uppercase tracking-wider">Pro Tip</span>
             </div>
-            <p className="text-base font-bold leading-relaxed tracking-tight">
+            <p className="text-base font-semibold leading-relaxed tracking-tight">
               {valueMessage === "Traders using insights improve faster" 
                 ? "Traders using insights improve faster. Unlock advanced analytics to grow your edge."
                 : "Unlock advanced analytics to grow your edge. Most successful traders track every detail."}
             </p>
             <button 
               onClick={handleUpgrade}
-              className="text-xs font-black uppercase tracking-widest text-blue-400 hover:text-blue-300 transition-colors flex items-center gap-2 group/btn mt-2"
+              className="text-xs font-semibold uppercase tracking-wider text-brand-500 hover:text-brand-600 transition-colors flex items-center gap-2 group/btn mt-2"
             >
-              See Premium Benefits
+              Premium Benefits
               <TrendingUp className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
             </button>
           </div>
@@ -384,19 +384,19 @@ export function Dashboard({ trades, onAddTrade, user, onUpgrade }: DashboardProp
           <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-8 sm:mb-10 gap-4">
             <div className="space-y-1">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-blue-500/10 rounded-xl">
-                  <BarChart3 className="w-5 h-5 text-blue-500" />
+                <div className="p-2 bg-brand-500/10 rounded-xl">
+                  <BarChart3 className="w-5 h-5 text-brand-500" />
                 </div>
-                <h3 className="text-lg sm:text-xl font-black tracking-tighter text-text-100">Equity Curve</h3>
+                <h3 className="text-lg sm:text-xl font-semibold tracking-tight text-text-100">Equity Curve</h3>
               </div>
-              <p className="text-gray-500 text-xs sm:text-sm font-medium">Cumulative profit over time</p>
+              <p className="text-text-200 text-xs sm:text-sm font-medium">Cumulative profit over time</p>
             </div>
-            <div className="flex items-center gap-1 bg-surface-300 p-1 rounded-xl border border-border-subtle self-start sm:self-center overflow-x-auto max-w-full">
+            <div className="flex items-center gap-1 bg-surface-200 p-1 rounded-xl border border-border-subtle self-start sm:self-center overflow-x-auto max-w-full">
               {['7D', '1M', '3M', 'ALL'].map((range) => (
                 <button 
                   key={range}
-                  className={`px-3 sm:px-4 py-2 rounded-lg text-[9px] sm:text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${
-                    range === 'ALL' ? 'bg-blue-600 text-white shadow-lg' : 'text-text-200 hover:text-text-100'
+                  className={`px-3 sm:px-4 py-1.5 rounded-lg text-[10px] font-semibold uppercase tracking-wide transition-all whitespace-nowrap ${
+                    range === 'ALL' ? 'bg-text-100 text-surface-100 shadow-sm' : 'text-text-200 hover:text-text-100'
                   }`}
                 >
                   {range}
@@ -415,49 +415,41 @@ export function Dashboard({ trades, onAddTrade, user, onUpgrade }: DashboardProp
             ) : (
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={chartData}>
-                  <defs>
-                    <linearGradient id="colorProfit" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.3}/>
-                      <stop offset="95%" stopColor="#3B82F6" stopOpacity={0}/>
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#ffffff05" vertical={false} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="#88888820" vertical={false} />
                   <XAxis 
                     dataKey="name" 
-                    stroke="#666" 
+                    stroke="#888" 
                     fontSize={10}
                     tickLine={false}
                     axisLine={false}
                     dy={10}
-                    fontFamily="JetBrains Mono"
                   />
                   <YAxis 
-                    stroke="#666" 
+                    stroke="#888" 
                     fontSize={10}
                     tickLine={false}
                     axisLine={false}
                     tickFormatter={(value) => `$${value}`}
-                    fontFamily="JetBrains Mono"
                   />
                   <Tooltip 
                     contentStyle={{ 
-                      backgroundColor: '#0F0F0F', 
-                      border: '1px solid rgba(255,255,255,0.1)',
-                      borderRadius: '16px',
-                      boxShadow: '0 20px 40px rgba(0,0,0,0.5)',
+                      backgroundColor: 'var(--s-100)', 
+                      border: '1px solid var(--b-subtle)',
+                      borderRadius: '12px',
+                      boxShadow: '0 10px 20px rgba(0,0,0,0.05)',
                       padding: '12px'
                     }}
-                    itemStyle={{ color: '#fff', fontSize: '12px', fontWeight: 'bold' }}
-                    labelStyle={{ color: '#666', fontSize: '10px', marginBottom: '4px', fontWeight: 'bold', textTransform: 'uppercase' }}
+                    itemStyle={{ color: 'var(--t-100)', fontSize: '12px', fontWeight: 'bold' }}
+                    labelStyle={{ color: 'var(--t-200)', fontSize: '10px', marginBottom: '4px', fontWeight: 'bold', textTransform: 'uppercase' }}
                   />
                   <Line 
                     type="monotone" 
                     dataKey="cumulative" 
-                    stroke="#3B82F6" 
-                    strokeWidth={4}
-                    dot={{ r: 4, fill: '#3B82F6', strokeWidth: 2, stroke: '#0F0F0F' }}
-                    activeDot={{ r: 8, fill: '#fff', stroke: '#3B82F6', strokeWidth: 4 }}
-                    animationDuration={2000}
+                    stroke="var(--color-brand-500)" 
+                    strokeWidth={3}
+                    dot={false}
+                    activeDot={{ r: 6, fill: 'var(--color-brand-500)', stroke: 'var(--s-100)', strokeWidth: 3 }}
+                    animationDuration={1500}
                   />
                 </LineChart>
               </ResponsiveContainer>
@@ -474,12 +466,12 @@ export function Dashboard({ trades, onAddTrade, user, onUpgrade }: DashboardProp
                 <div className="p-2 bg-purple-500/10 rounded-xl">
                   <Brain className="w-5 h-5 text-purple-500" />
                 </div>
-                <h3 className="text-lg sm:text-xl font-black tracking-tighter">Smart Insights</h3>
+                <h3 className="text-lg sm:text-xl font-semibold tracking-tight">Smart Insights</h3>
               </div>
-              <p className="text-gray-500 text-xs sm:text-sm font-medium">AI-driven behavior analysis</p>
+              <p className="text-text-200 text-xs sm:text-sm font-medium">AI-driven behavior analysis</p>
             </div>
-            <div className="p-2 bg-white/5 rounded-xl border border-white/5">
-              <Zap className="w-4 h-4 text-yellow-500 animate-pulse" />
+            <div className="p-2 bg-black/5 rounded-xl border border-border-subtle">
+              <Zap className="w-4 h-4 text-yellow-500" />
             </div>
           </div>
           
@@ -535,13 +527,13 @@ export function Dashboard({ trades, onAddTrade, user, onUpgrade }: DashboardProp
       <div className="premium-card overflow-hidden group">
         <div className="p-8 lg:p-10 border-b border-border-subtle flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-blue-500/10 rounded-xl">
-              <History className="w-5 h-5 text-blue-500" />
+            <div className="p-2 bg-brand-500/10 rounded-xl">
+              <History className="w-5 h-5 text-brand-500" />
             </div>
-            <h3 className="text-xl font-black tracking-tighter">Recent Activity</h3>
+            <h3 className="text-xl font-semibold tracking-tight">Recent Activity</h3>
           </div>
-          <button className="text-[10px] font-black uppercase tracking-widest text-blue-500 hover:text-blue-400 transition-colors flex items-center gap-2 group/btn">
-            View All History
+          <button className="text-[11px] font-semibold uppercase tracking-wider text-brand-500 hover:text-brand-600 transition-colors flex items-center gap-2 group/btn">
+            View History
             <ArrowUpRight className="w-4 h-4 group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5 transition-transform" />
           </button>
         </div>
@@ -550,7 +542,7 @@ export function Dashboard({ trades, onAddTrade, user, onUpgrade }: DashboardProp
         <div className="hidden md:block overflow-x-auto">
           <table className="w-full text-left">
             <thead>
-              <tr className="text-text-200 text-[10px] font-black uppercase tracking-[0.2em] border-b border-border-subtle">
+              <tr className="text-text-200 text-[11px] font-semibold uppercase tracking-wider border-b border-border-subtle">
                 <th className="px-10 py-6">Asset Pair</th>
                 <th className="px-10 py-6">Type</th>
                 <th className="px-10 py-6">Entry</th>
@@ -559,47 +551,47 @@ export function Dashboard({ trades, onAddTrade, user, onUpgrade }: DashboardProp
                 <th className="px-10 py-6 text-right">Timestamp</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-border-subtle">
+            <tbody className="divide-y divide-border-subtle font-medium">
               {trades.slice(0, 5).map((trade, i) => (
                 <motion.tr 
                   key={trade.id}
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: i * 0.05 }}
-                  className="hover:bg-surface-300/30 transition-colors group/row"
+                  className="hover:bg-surface-200 transition-colors group/row text-sm"
                 >
                   <td className="px-10 py-6">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-surface-300 flex items-center justify-center font-black text-[10px] group-hover/row:bg-blue-500/10 group-hover/row:text-blue-500 transition-colors">
+                      <div className="w-10 h-10 rounded-xl bg-surface-200 flex items-center justify-center font-semibold text-[11px] group-hover/row:bg-brand-500/10 group-hover/row:text-brand-500 transition-colors text-text-100">
                         {trade.pair.substring(0, 2)}
                       </div>
-                      <span className="font-bold tracking-tight">{trade.pair}</span>
+                      <span className="font-semibold tracking-tight">{trade.pair}</span>
                     </div>
                   </td>
                   <td className="px-10 py-6">
-                    <span className={`px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest ${
-                      trade.type === 'buy' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-red-500/10 text-red-500'
+                    <span className={`px-3 py-1.5 rounded-xl text-[10px] font-semibold uppercase tracking-wider ${
+                      trade.type === 'buy' ? 'bg-emerald-500/10 text-emerald-600' : 'bg-red-500/10 text-red-600'
                     }`}>
                       {trade.type}
                     </span>
                   </td>
-                  <td className="px-10 py-6 font-mono text-sm text-text-200">{trade.entryPrice}</td>
+                  <td className="px-10 py-6 text-text-200">{trade.entryPrice}</td>
                   <td className="px-10 py-6">
                     <div className="flex justify-center">
-                      <span className={`px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest ${
-                        trade.outcome === 'win' ? 'bg-emerald-500/10 text-emerald-500' : 
-                        trade.outcome === 'loss' ? 'bg-red-500/10 text-red-500' : 'bg-blue-500/10 text-blue-500'
+                      <span className={`px-3 py-1.5 rounded-xl text-[10px] font-semibold uppercase tracking-wider ${
+                        trade.outcome === 'win' ? 'bg-emerald-500/10 text-emerald-600' : 
+                        trade.outcome === 'loss' ? 'bg-red-500/10 text-red-600' : 'bg-brand-500/10 text-brand-500'
                       }`}>
                         {trade.outcome}
                       </span>
                     </div>
                   </td>
-                  <td className={`px-10 py-6 text-right font-black tracking-tighter text-lg ${
-                    (trade.profitLoss || 0) >= 0 ? 'text-emerald-500' : 'text-red-500'
+                  <td className={`px-10 py-6 text-right font-semibold tracking-tight text-base ${
+                    (trade.profitLoss || 0) >= 0 ? 'text-emerald-600' : 'text-red-600'
                   }`}>
                     {(trade.profitLoss || 0) >= 0 ? '+' : ''}{trade.profitLoss}
                   </td>
-                  <td className="px-10 py-6 text-right text-text-200 font-mono text-[10px] uppercase tracking-widest">
+                  <td className="px-10 py-6 text-right text-text-200 text-[10px] uppercase tracking-wider">
                     {format(new Date(trade.timestamp), 'MMM dd, HH:mm')}
                   </td>
                 </motion.tr>
@@ -671,12 +663,12 @@ function StatCard({ label, value, icon: Icon, trend, color = 'blue' }: StatCardP
       className="premium-card p-6 lg:p-8 group"
     >
       <div className="flex items-start justify-between mb-6">
-        <div className={`p-4 rounded-2xl bg-${color}-500/10 text-${color}-500 group-hover:scale-110 transition-transform duration-500`}>
-          <Icon className="w-6 h-6" />
+        <div className={`p-3 rounded-xl bg-${color}-500/10 text-${color}-600`}>
+          <Icon className="w-5 h-5" />
         </div>
         {trend && (
-          <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider ${
-            trend.isPositive ? 'bg-green-500/10 text-green-500' : 'bg-red-500/10 text-red-500'
+          <div className={`flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-semibold uppercase tracking-wide ${
+            trend.isPositive ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600'
           }`}>
             {trend.isPositive ? <TrendingUp className="w-3 h-3" /> : <TrendingUp className="w-3 h-3 rotate-180" />}
             {trend.value}
