@@ -49,8 +49,7 @@ interface DashboardProps {
 
 export function Dashboard({ trades, onAddTrade, user, onUpgrade }: DashboardProps) {
   const handleUpgrade = () => {
-    if (!user) return;
-    initializePayment(user, () => {}, onUpgrade);
+    onUpgrade();
   };
   // ... existing stats ...
   const totalProfit = trades.reduce((acc, t) => acc + (t.profitLoss || 0), 0);
@@ -254,7 +253,8 @@ export function Dashboard({ trades, onAddTrade, user, onUpgrade }: DashboardProp
           )}
           <button 
             onClick={onAddTrade}
-            className="hidden sm:flex bg-brand-500 hover:bg-brand-600 text-white px-8 py-3.5 rounded-2xl font-semibold text-xs uppercase tracking-wider items-center gap-2 transition-all shadow-sm active:scale-95"
+            disabled={user?.plan === 'free' && (user?.tradeCount || 0) >= 10}
+            className="hidden sm:flex bg-brand-500 hover:bg-brand-600 text-white px-8 py-3.5 rounded-2xl font-semibold text-xs uppercase tracking-wider items-center gap-2 transition-all shadow-sm active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:grayscale"
           >
             <Plus className="w-5 h-5" />
             New Trade
@@ -279,7 +279,7 @@ export function Dashboard({ trades, onAddTrade, user, onUpgrade }: DashboardProp
                     <Info className="w-5 h-5 text-brand-500" />
                   </div>
                   <h3 className="font-semibold text-[11px] uppercase tracking-wider text-text-200">
-                    {user.tradeCount >= 10 ? 'Monthly Limit Reached' : 'Monthly Trade Limit'}
+                    {user.tradeCount >= 10 ? 'Trade Limit Reached' : 'Available Free Trades'}
                   </h3>
                 </div>
                 <span className={`text-base sm:text-lg font-semibold tracking-tight ${user.tradeCount >= 10 ? 'text-red-500' : 'text-text-100'}`}>
@@ -299,14 +299,10 @@ export function Dashboard({ trades, onAddTrade, user, onUpgrade }: DashboardProp
                 <p className="text-sm text-text-100 font-semibold tracking-tight">
                   {user.tradeCount >= 10 
                     ? "Upgrade to Premium for unlimited trades and insights" 
-                    : user.tradeCount >= 5 
-                      ? "You've reached your monthly limit" 
+                    : user.tradeCount >= 7
+                      ? "You're nearly at the limit. Upgrade to maintain your record." 
                       : valueMessage}
                 </p>
-                <div className="flex items-center gap-2 text-[10px] text-gray-500 font-semibold uppercase tracking-wider">
-                  <Calendar className="w-3 h-3" />
-                  Resets in {Math.max(0, 30 - Math.floor((new Date().getTime() - (user.subscriptionStartDate ? new Date(user.subscriptionStartDate).getTime() : 0)) / (1000 * 60 * 60 * 24)))} days
-                </div>
               </div>
             </div>
             <button 

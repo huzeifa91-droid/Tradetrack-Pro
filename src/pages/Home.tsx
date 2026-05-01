@@ -57,7 +57,6 @@ export default function Home() {
         
         <div className="hidden lg:flex items-center gap-10">
           <a href="#features" className="text-sm font-semibold text-text-200 hover:text-brand-500 transition-colors">Features</a>
-          <a href="#pricing" className="text-sm font-semibold text-text-200 hover:text-brand-500 transition-colors">Pricing</a>
           <Link to="/login" className="text-sm font-semibold text-text-200 hover:text-brand-500 transition-colors">Login</Link>
           <Link to="/login" className="bg-text-100 text-surface-100 px-6 py-2.5 rounded-xl text-sm font-semibold hover:bg-brand-500 transition-all active:scale-95 shadow-lg shadow-black/5">
             Get Started
@@ -102,12 +101,6 @@ export default function Home() {
               Start Journaling Now
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </Link>
-            <a 
-              href="#pricing" 
-              className="w-full sm:w-auto bg-surface-200 hover:bg-surface-300 text-text-100 px-8 py-4 rounded-2xl font-semibold text-lg transition-all active:scale-95 border border-border-subtle"
-            >
-              View Pricing
-            </a>
           </motion.div>
         </motion.div>
       </section>
@@ -166,13 +159,6 @@ export default function Home() {
               description="We use Enterprise-grade security protocols to ensure your strategy and data remain your competitive advantage."
             />
           </div>
-        </div>
-      </section>
-
-      {/* Pricing Section */}
-      <section id="pricing" className="px-8 lg:px-20 py-32 bg-surface-200 border-y border-border-subtle">
-        <div className="max-w-7xl mx-auto">
-          <Pricing user={null} onUpgrade={() => {}} />
         </div>
       </section>
 

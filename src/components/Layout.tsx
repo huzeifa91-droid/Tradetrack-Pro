@@ -236,7 +236,8 @@ export function Layout({ children, user, onAddTrade }: LayoutProps) {
             <div className="w-px h-6 bg-border-subtle" />
             <button 
               onClick={onAddTrade}
-              className="bg-brand-500 hover:bg-brand-600 text-white px-5 py-2 rounded-xl font-semibold text-xs uppercase tracking-wider transition-all shadow-sm active:scale-95 flex items-center gap-2"
+              disabled={user?.plan === 'free' && (user?.tradeCount || 0) >= 10}
+              className="bg-brand-500 hover:bg-brand-600 text-white px-5 py-2 rounded-xl font-semibold text-xs uppercase tracking-wider transition-all shadow-sm active:scale-95 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:grayscale"
             >
               <Plus className="w-4 h-4" />
               New Trade
@@ -257,7 +258,8 @@ export function Layout({ children, user, onAddTrade }: LayoutProps) {
               <button
                 key={item.id}
                 onClick={onAddTrade}
-                className="w-12 h-12 bg-brand-500 rounded-2xl flex items-center justify-center shadow-lg -translate-y-4 active:scale-90 transition-transform border-4 border-surface-100"
+                disabled={user?.plan === 'free' && (user?.tradeCount || 0) >= 10}
+                className="w-12 h-12 bg-brand-500 rounded-2xl flex items-center justify-center shadow-lg -translate-y-4 active:scale-90 transition-transform border-4 border-surface-100 disabled:opacity-50 disabled:grayscale disabled:cursor-not-allowed"
               >
                 <Plus className="w-6 h-6 text-white" />
               </button>

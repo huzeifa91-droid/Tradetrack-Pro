@@ -24,7 +24,7 @@ import { TradeForm } from './components/TradeForm';
 import { TradeDetail } from './components/TradeDetail';
 import { motion, AnimatePresence } from 'motion/react';
 import { Toaster, toast } from 'sonner';
-import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
 
 // Import Pages
 import Home from './pages/Home';
@@ -48,6 +48,7 @@ export default function App() {
   const [selectedTrade, setSelectedTrade] = useState<Trade | null>(null);
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const location = useLocation();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
@@ -116,16 +117,6 @@ export default function App() {
         ...doc.data()
       })) as Trade[];
       setTrades(tradesData);
-      
-      if (userProfile && tradesData.length !== userProfile.tradeCount) {
-        try {
-          const userDocRef = doc(db, 'users', user.uid);
-          await updateDoc(userDocRef, { tradeCount: tradesData.length });
-        } catch (err) {
-          console.error("Error updating trade count:", err);
-        }
-      }
-      
       setLoading(false);
     }, (error) => {
       if (auth.currentUser) {
@@ -159,8 +150,8 @@ export default function App() {
   const handleAddTrade = async (tradeData: Partial<Trade>) => {
     if (!user || !userProfile) return;
 
-    if (userProfile.plan === 'free' && trades.length >= 10) {
-      toast.error("Free limit reached. Upgrade to continue using TradeTrack Pro.", {
+    if (userProfile.plan === 'free' && (userProfile.tradeCount || 0) >= 10) {
+      toast.error("You have reached your 10 free trades limit. Upgrade to continue.", {
         duration: 5000
       });
       return;
@@ -221,7 +212,12 @@ export default function App() {
   }
 
   const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-    if (!user) return <Navigate to="/login" replace />;
+    if (!user) {
+      if (location.pathname === '/pricing') {
+        toast.error("Please log in to view pricing", { id: 'pricing-auth-gate' });
+      }
+      return <Navigate to="/login" replace />;
+    }
     return (
       <Layout user={userProfile} onAddTrade={() => setIsTradeModalOpen(true)}>
         <AnimatePresence mode="wait">
@@ -249,7 +245,12 @@ export default function App() {
         
         <Route path="/dashboard" element={
           <ProtectedRoute>
-            <DashboardPage trades={trades} user={userProfile} onAddTrade={() => setIsTradeModalOpen(true)} onUpgrade={() => {}} />
+            <DashboardPage 
+              trades={trades} 
+              user={userProfile} 
+              onAddTrade={() => setIsTradeModalOpen(true)} 
+              onUpgrade={() => navigate('/pricing')} 
+            />
           </ProtectedRoute>
         } />
         
@@ -295,7 +296,7 @@ export default function App() {
           <ProtectedRoute>
             <SettingsPage 
               user={userProfile} 
-              onNavigateToPricing={() => {}} 
+              onNavigateToPricing={() => navigate('/pricing')} 
               onThemeChange={(theme) => {
                 if (userProfile) setUserProfile({ ...userProfile, theme: theme as 'dark' | 'light' });
               }} 
@@ -317,7 +318,7 @@ export default function App() {
             initialData={editingTrade}
             accountBalance={userProfile?.accountBalance}
             userPlan={userProfile?.plan}
-            tradeCount={trades.length}
+            tradeCount={userProfile?.tradeCount || 0}
           />
         )}
         {selectedTrade && (

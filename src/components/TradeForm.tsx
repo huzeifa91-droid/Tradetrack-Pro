@@ -282,12 +282,12 @@ export function TradeForm({ onClose, onSubmit, initialData, accountBalance = 100
               <AlertCircle className="w-5 h-5 flex-shrink-0" />
               <div className="space-y-0.5">
                 <p className="text-xs font-semibold uppercase tracking-wider">
-                  {tradeCount >= 10 ? 'Monthly Limit Reached' : 'Free Plan Active'}
+                  {tradeCount >= 10 ? 'Trade Limit Reached' : 'Free Plan Active'}
                 </p>
                 <p className="text-[10px] opacity-80 leading-relaxed font-medium">
                   {tradeCount >= 10 
                     ? "Free limit reached. Upgrade to continue using TradeTrack Pro." 
-                    : `You have used ${tradeCount} of your 10 lifetime trades.`}
+                    : `You have used ${tradeCount} of your 10 free trades.`}
                 </p>
               </div>
             </div>
