@@ -143,23 +143,6 @@ export function TradeDetail({ trade, onClose, onEdit, onDelete }: TradeDetailPro
               </p>
             </div>
           </div>
-
-          {/* Screenshot Section */}
-          {(trade.screenshot || trade.imageUrl) && (
-            <div className="space-y-4">
-              <h3 className="text-sm font-bold uppercase tracking-widest text-text-200 flex items-center gap-2">
-                <ImageIcon className="w-4 h-4" /> Trade Screenshot
-              </h3>
-              <div className="bg-surface-200 rounded-2xl overflow-hidden border border-border-subtle">
-                <img 
-                  src={trade.screenshot || trade.imageUrl} 
-                  alt="Trade Screenshot" 
-                  className="w-full object-contain max-h-[500px]"
-                  referrerPolicy="no-referrer"
-                />
-              </div>
-            </div>
-          )}
         </div>
       </motion.div>
     </div>

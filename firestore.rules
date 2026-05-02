@@ -78,7 +78,13 @@ service cloud.firestore {
              data.entryPrice is number &&
              data.lotSize is number &&
              data.timestamp is string &&
-             (!('outcome' in data) || data.outcome in ['win', 'loss', 'breakeven', 'open']);
+             (!('createdAt' in data) || data.createdAt is timestamp) &&
+             (!('outcome' in data) || data.outcome in ['win', 'loss', 'breakeven', 'open']) &&
+             (!('result' in data) || data.result in ['win', 'loss', 'breakeven', 'open']) &&
+             (!('profitLoss' in data) || data.profitLoss is number) &&
+             (!('profit' in data) || data.profit is number) &&
+             (!('confidence' in data) || (data.confidence is number && data.confidence >= 1 && data.confidence <= 10)) &&
+             (!('followedPlan' in data) || data.followedPlan is bool);
     }
 
     // ===============================================================

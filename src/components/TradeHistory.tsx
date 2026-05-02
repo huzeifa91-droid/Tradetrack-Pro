@@ -92,21 +92,9 @@ export function TradeHistory({ trades, onEdit, onDelete, onView }: TradeHistoryP
                     <div className="text-[10px] text-text-200 uppercase tracking-wider">{format(new Date(trade.timestamp), 'HH:mm')}</div>
                   </td>
                   <td className="px-6 py-5">
-                    <div className="flex items-center gap-3">
-                      {(trade.screenshot || trade.imageUrl) && (
-                        <div className="w-9 h-9 rounded-lg overflow-hidden border border-border-subtle flex-shrink-0">
-                          <img 
-                            src={trade.screenshot || trade.imageUrl} 
-                            alt="Trade" 
-                            className="w-full h-full object-cover"
-                            referrerPolicy="no-referrer"
-                          />
-                        </div>
-                      )}
-                      <div>
-                        <div className="font-semibold text-text-100">{trade.pair}</div>
-                        <div className="text-[10px] text-text-200 uppercase tracking-wider">{trade.strategy || 'No Strategy'}</div>
-                      </div>
+                    <div>
+                      <div className="font-semibold text-text-100">{trade.pair}</div>
+                      <div className="text-[10px] text-text-200 uppercase tracking-wider">{trade.strategy || 'No Strategy'}</div>
                     </div>
                   </td>
                   <td className="px-6 py-5">
@@ -180,16 +168,6 @@ export function TradeHistory({ trades, onEdit, onDelete, onView }: TradeHistoryP
                   }`}>
                     {trade.type === 'buy' ? 'B' : 'S'}
                   </div>
-                  {(trade.screenshot || trade.imageUrl) && (
-                    <div className="w-10 h-10 rounded-xl overflow-hidden border border-white/10 flex-shrink-0">
-                      <img 
-                        src={trade.screenshot || trade.imageUrl} 
-                        alt="Trade" 
-                        className="w-full h-full object-cover"
-                        referrerPolicy="no-referrer"
-                      />
-                    </div>
-                  )}
                   <div>
                     <h4 className="font-bold text-sm">{trade.pair}</h4>
                     <p className="text-[10px] text-gray-500">{format(new Date(trade.timestamp), 'MMM dd, HH:mm')}</p>

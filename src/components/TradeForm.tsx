@@ -1,15 +1,12 @@
 import React from 'react';
-import { X, AlertCircle, TrendingUp, TrendingDown, Clock, Tag, FileText, Brain, Image as ImageIcon, Upload, Trash2 } from 'lucide-react';
+import { X, AlertCircle, TrendingUp, TrendingDown, Clock, Tag, FileText, Brain } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Trade, STRATEGIES, EMOTIONS, PAIRS } from '../types';
 import { motion } from 'motion/react';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { storage, auth } from '../firebase';
+import { auth } from '../firebase';
 import { toast } from 'sonner';
-
-import { uploadScreenshot } from '../services/storageService';
 
 const tradeSchema = z.object({
   pair: z.string().min(1, 'Required'),
@@ -29,8 +26,6 @@ const tradeSchema = z.object({
   outcome: z.enum(['win', 'loss', 'breakeven', 'open']).default('open'),
   profitLoss: z.number().optional(),
   riskRewardRatio: z.number().optional(),
-  screenshot: z.string().optional(),
-  imageUrl: z.string().optional(),
 });
 
 interface TradeFormProps {
@@ -41,10 +36,7 @@ interface TradeFormProps {
 }
 
 export function TradeForm({ onClose, onSubmit, initialData, accountBalance = 10000, userPlan = 'free', tradeCount = 0 }: TradeFormProps & { userPlan?: string, tradeCount?: number }) {
-  const [isUploading, setIsUploading] = React.useState(false);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
-  const [previewUrl, setPreviewUrl] = React.useState<string | null>(initialData?.imageUrl || null);
-  const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   const { register, handleSubmit, watch, setValue, formState: { errors } } = useForm({
     resolver: zodResolver(tradeSchema),
@@ -155,98 +147,6 @@ export function TradeForm({ onClose, onSubmit, initialData, accountBalance = 100
       setValue('profitLoss', Number(pl.toFixed(2)));
     }
   }, [entryPrice, stopLoss, takeProfit, lotSize, type, outcome, pair, setValue]);
-
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    // Validate file type and size
-    if (!file.type.startsWith('image/')) {
-      toast.error('Please upload an image file');
-      return;
-    }
-    
-    // Limit to 10MB before compression
-    if (file.size > 10 * 1024 * 1024) {
-      toast.error('File size must be less than 10MB');
-      return;
-    }
-
-    setIsUploading(true);
-    try {
-      if (!auth.currentUser) {
-        throw new Error('Please log in to upload screenshots');
-      }
-
-      console.log('Compressing image...');
-      const compressedFile = await compressImage(file);
-      console.log('Image compressed, calling uploadScreenshot...');
-      const url = await uploadScreenshot(new File([compressedFile], file.name, { type: 'image/jpeg' }), auth.currentUser.uid);
-      
-      setPreviewUrl(url);
-      setValue('imageUrl', url); 
-      setValue('screenshot', url);
-      console.log('Screenshot upload flow completed with URL:', url);
-      toast.success('Screenshot uploaded successfully');
-    } catch (error: any) {
-      console.error('Upload error:', error);
-      toast.error('Image upload failed');
-    } finally {
-      setIsUploading(false);
-    }
-  };
-
-  const compressImage = (file: File): Promise<Blob> => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = (event) => {
-        const img = new Image();
-        img.src = event.target?.result as string;
-        img.onload = () => {
-          const canvas = document.createElement('canvas');
-          const MAX_WIDTH = 1920;
-          const MAX_HEIGHT = 1080;
-          let width = img.width;
-          let height = img.height;
-
-          if (width > height) {
-            if (width > MAX_WIDTH) {
-              height *= MAX_WIDTH / width;
-              width = MAX_WIDTH;
-            }
-          } else {
-            if (height > MAX_HEIGHT) {
-              width *= MAX_HEIGHT / height;
-              height = MAX_HEIGHT;
-            }
-          }
-
-          canvas.width = width;
-          canvas.height = height;
-          const ctx = canvas.getContext('2d');
-          ctx?.drawImage(img, 0, 0, width, height);
-          
-          canvas.toBlob(
-            (blob) => {
-              if (blob) resolve(blob);
-              else reject(new Error('Canvas to Blob failed'));
-            },
-            'image/jpeg',
-            0.8 // 80% quality
-          );
-        };
-        img.onerror = (err) => reject(err);
-      };
-      reader.onerror = (err) => reject(err);
-    });
-  };
-
-  const removeScreenshot = () => {
-    setPreviewUrl(null);
-    setValue('imageUrl', '');
-    if (fileInputRef.current) fileInputRef.current.value = '';
-  };
 
     const onFormSubmit = async (data: any) => {
       setIsSubmitting(true);
@@ -413,6 +313,7 @@ export function TradeForm({ onClose, onSubmit, initialData, accountBalance = 100
                   disabled={riskMode === 'amount'}
                   className={`w-full bg-surface-300 border border-border-subtle rounded-xl px-4 py-3 focus:border-brand-500 outline-none transition-all text-sm text-text-100 font-semibold ${riskMode === 'amount' ? 'opacity-50 text-brand-500' : ''}`}
                 />
+                {errors.lotSize && <p className="text-[10px] text-red-500 mt-1">{errors.lotSize.message}</p>}
               </div>
             </div>
 
@@ -548,89 +449,16 @@ export function TradeForm({ onClose, onSubmit, initialData, accountBalance = 100
               className="w-full bg-[#1A1A1A] border border-white/5 rounded-xl px-4 py-3 focus:border-blue-500 outline-none transition-all resize-none text-sm"
             />
           </div>
-
-          {/* Screenshot Upload */}
-          <div className="space-y-4 pt-4 border-t border-white/5">
-            <div className="flex items-center justify-between">
-              <label className="text-xs sm:text-sm font-medium text-gray-400 flex items-center gap-2">
-                <ImageIcon className="w-4 h-4" /> Trade Screenshot
-              </label>
-            </div>
-            
-            {previewUrl ? (
-              <div className="relative group rounded-2xl overflow-hidden border border-white/10 bg-white/5">
-                <img 
-                  src={previewUrl} 
-                  alt="Trade Screenshot" 
-                  className="w-full aspect-video object-cover"
-                  referrerPolicy="no-referrer"
-                />
-                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-4">
-                  <button
-                    type="button"
-                    onClick={() => fileInputRef.current?.click()}
-                    className="p-3 bg-white/10 hover:bg-white/20 rounded-full text-white transition-all"
-                    title="Change Screenshot"
-                  >
-                    <Upload className="w-5 h-5" />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={removeScreenshot}
-                    className="p-3 bg-red-500/20 hover:bg-red-500/40 rounded-full text-red-500 transition-all"
-                    title="Remove Screenshot"
-                  >
-                    <Trash2 className="w-5 h-5" />
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <button
-                type="button"
-                onClick={() => fileInputRef.current?.click()}
-                disabled={isUploading}
-                className="w-full aspect-video border-2 border-dashed border-white/10 rounded-2xl flex flex-col items-center justify-center gap-3 transition-all group hover:border-blue-500/50 hover:bg-blue-500/5"
-              >
-                <div className="p-4 bg-white/5 rounded-full group-hover:bg-blue-500/10 transition-all">
-                  {isUploading ? (
-                    <div className="w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
-                  ) : (
-                    <Upload className="w-6 h-6 text-gray-500 group-hover:text-blue-500" />
-                  )}
-                </div>
-                <div className="text-center p-4">
-                  <p className="text-sm font-bold text-gray-400 group-hover:text-gray-200">
-                    {isUploading ? 'Uploading...' : 'Click to upload screenshot'}
-                  </p>
-                  <p className="text-xs text-gray-600">
-                    Supports JPG, PNG (Max 10MB)
-                  </p>
-                </div>
-              </button>
-            )}
-            
-            <input 
-              type="file"
-              ref={fileInputRef}
-              onChange={handleFileChange}
-              accept="image/*"
-              className="hidden"
-            />
-          </div>
         </form>
 
           <div className="p-4 sm:p-6 bg-surface-200 border-t border-border-subtle sticky bottom-0 z-10 shrink-0">
             <button 
               type="submit"
-              disabled={isUploading || isSubmitting}
+              form="trade-form"
+              disabled={isSubmitting}
               className="w-full bg-brand-500 hover:bg-brand-600 disabled:opacity-50 disabled:cursor-not-allowed text-white py-4 rounded-xl font-semibold text-base shadow-sm transition-all active:scale-[0.98] flex items-center justify-center gap-2"
             >
-              {isUploading ? (
-                <>
-                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  Uploading Screenshot...
-                </>
-              ) : isSubmitting ? (
+              {isSubmitting ? (
                 <>
                   <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
                   Saving Trade...

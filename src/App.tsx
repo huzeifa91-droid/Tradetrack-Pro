@@ -214,20 +214,26 @@ export default function App() {
       toast.success('Trade recorded successfully');
     } catch (error) {
       console.error('Firestore save failure:', error);
-      handleFirestoreError(error, OperationType.CREATE, 'trades');
       toast.error('Failed to save trade');
+      handleFirestoreError(error, OperationType.CREATE, 'trades');
     }
   };
 
   const handleUpdateTrade = async (id: string, tradeData: Partial<Trade>) => {
     try {
-      await updateDoc(doc(db, 'trades', id), tradeData);
+      const updateData = {
+        ...tradeData,
+        result: tradeData.outcome,
+        profit: tradeData.profitLoss,
+        updatedAt: serverTimestamp()
+      };
+      await updateDoc(doc(db, 'trades', id), updateData);
       setIsTradeModalOpen(false);
       setEditingTrade(null);
       toast.success('Trade updated successfully');
     } catch (error) {
-      handleFirestoreError(error, OperationType.UPDATE, `trades/${id}`);
       toast.error('Failed to update trade');
+      handleFirestoreError(error, OperationType.UPDATE, `trades/${id}`);
     }
   };
 
@@ -236,8 +242,8 @@ export default function App() {
       await deleteDoc(doc(db, 'trades', id));
       toast.success('Trade deleted');
     } catch (error) {
-      handleFirestoreError(error, OperationType.DELETE, `trades/${id}`);
       toast.error('Failed to delete trade');
+      handleFirestoreError(error, OperationType.DELETE, `trades/${id}`);
     }
   };
 

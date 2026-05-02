@@ -22,7 +22,6 @@ export interface Trade {
   timestamp: string;
   strategy?: string;
   notes?: string;
-  screenshotUrl?: string;
   confidence: number;
   emotion?: string;
   followedPlan: boolean;
@@ -32,8 +31,6 @@ export interface Trade {
   riskMode?: 'amount' | 'lot';
   riskAmount?: number;
   riskPercentage?: number;
-  screenshot?: string;
-  imageUrl?: string;
 }
 
 export const STRATEGIES = [

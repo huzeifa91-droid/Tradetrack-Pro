@@ -30,14 +30,16 @@
         "takeProfit": { "type": "number" },
         "lotSize": { "type": "number" },
         "timestamp": { "type": "string", "format": "date-time" },
+        "createdAt": { "type": "string", "format": "date-time" },
         "strategy": { "type": "string" },
         "notes": { "type": "string" },
-        "screenshotUrl": { "type": "string", "format": "uri" },
         "confidence": { "type": "number" },
         "emotion": { "type": "string" },
         "followedPlan": { "type": "boolean" },
         "outcome": { "type": "string", "enum": ["win", "loss", "breakeven", "open"] },
+        "result": { "type": "string", "enum": ["win", "loss", "breakeven", "open"] },
         "profitLoss": { "type": "number" },
+        "profit": { "type": "number" },
         "riskRewardRatio": { "type": "number" }
       },
       "required": ["userId", "pair", "type", "entryPrice", "lotSize", "timestamp"]
