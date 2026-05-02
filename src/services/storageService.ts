@@ -10,16 +10,18 @@ import { storage } from '../firebase';
 export async function uploadScreenshot(file: File, userId: string): Promise<string> {
   try {
     const timestamp = Date.now();
-    const safeName = file.name.replace(/[^a-zA-Z0-9.]/g, '_');
-    const fileName = `${timestamp}_${safeName}`;
+    const fileName = `${timestamp}.jpg`;
     const storageRef = ref(storage, `trades/${userId}/${fileName}`);
     
+    console.log(`Starting upload for user ${userId}, file: ${fileName}`);
     const snapshot = await uploadBytes(storageRef, file);
+    console.log('Upload success, getting download URL...');
     const downloadURL = await getDownloadURL(snapshot.ref);
+    console.log('Download URL obtained:', downloadURL);
     
     return downloadURL;
   } catch (error) {
     console.error('Error uploading screenshot:', error);
-    throw new Error('Failed to upload screenshot. Please check your permissions and try again.');
+    throw new Error('Image upload failed');
   }
 }

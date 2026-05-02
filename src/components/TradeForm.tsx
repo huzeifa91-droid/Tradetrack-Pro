@@ -42,6 +42,7 @@ interface TradeFormProps {
 
 export function TradeForm({ onClose, onSubmit, initialData, accountBalance = 10000, userPlan = 'free', tradeCount = 0 }: TradeFormProps & { userPlan?: string, tradeCount?: number }) {
   const [isUploading, setIsUploading] = React.useState(false);
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [previewUrl, setPreviewUrl] = React.useState<string | null>(initialData?.imageUrl || null);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
@@ -159,15 +160,6 @@ export function TradeForm({ onClose, onSubmit, initialData, accountBalance = 100
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Freemium check: Screen upload is pro only
-    if (userPlan !== 'premium') {
-      toast.error('Screenshot upload is available on Pro plan.', {
-        description: 'Upgrade your account to attach images to your trades.'
-      });
-      if (fileInputRef.current) fileInputRef.current.value = '';
-      return;
-    }
-
     // Validate file type and size
     if (!file.type.startsWith('image/')) {
       toast.error('Please upload an image file');
@@ -183,19 +175,22 @@ export function TradeForm({ onClose, onSubmit, initialData, accountBalance = 100
     setIsUploading(true);
     try {
       if (!auth.currentUser) {
-        throw new Error('User is not authenticated. Please log in again.');
+        throw new Error('Please log in to upload screenshots');
       }
 
+      console.log('Compressing image...');
       const compressedFile = await compressImage(file);
+      console.log('Image compressed, calling uploadScreenshot...');
       const url = await uploadScreenshot(new File([compressedFile], file.name, { type: 'image/jpeg' }), auth.currentUser.uid);
       
       setPreviewUrl(url);
+      setValue('imageUrl', url); 
       setValue('screenshot', url);
-      setValue('imageUrl', url); // Keep both for safety
+      console.log('Screenshot upload flow completed with URL:', url);
       toast.success('Screenshot uploaded successfully');
     } catch (error: any) {
       console.error('Upload error:', error);
-      toast.error(error.message || 'Failed to upload screenshot.');
+      toast.error('Image upload failed');
     } finally {
       setIsUploading(false);
     }
@@ -253,6 +248,15 @@ export function TradeForm({ onClose, onSubmit, initialData, accountBalance = 100
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
+    const onFormSubmit = async (data: any) => {
+      setIsSubmitting(true);
+      try {
+        await onSubmit(data);
+      } finally {
+        setIsSubmitting(false);
+      }
+    };
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <motion.div 
@@ -276,7 +280,7 @@ export function TradeForm({ onClose, onSubmit, initialData, accountBalance = 100
           </button>
         </div>
 
-        <form id="trade-form" onSubmit={handleSubmit(onSubmit)} className="p-6 sm:p-8 overflow-y-auto space-y-6 sm:space-y-8 flex-1">
+        <form id="trade-form" onSubmit={handleSubmit(onFormSubmit)} className="p-6 sm:p-8 overflow-y-auto space-y-6 sm:space-y-8 flex-1">
           {userPlan === 'free' && (
             <div className={`p-4 rounded-2xl border flex items-center gap-3 ${tradeCount >= 10 ? 'bg-red-500/10 border-red-500/20 text-red-600' : 'bg-brand-500/10 border-brand-500/20 text-brand-600'}`}>
               <AlertCircle className="w-5 h-5 flex-shrink-0" />
@@ -551,9 +555,6 @@ export function TradeForm({ onClose, onSubmit, initialData, accountBalance = 100
               <label className="text-xs sm:text-sm font-medium text-gray-400 flex items-center gap-2">
                 <ImageIcon className="w-4 h-4" /> Trade Screenshot
               </label>
-              {userPlan !== 'premium' && (
-                <span className="text-[10px] bg-yellow-500/10 text-yellow-500 px-2 py-0.5 rounded-full font-black uppercase tracking-widest border border-yellow-500/20">Pro Only</span>
-              )}
             </div>
             
             {previewUrl ? (
@@ -567,13 +568,7 @@ export function TradeForm({ onClose, onSubmit, initialData, accountBalance = 100
                 <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-4">
                   <button
                     type="button"
-                    onClick={() => {
-                      if (userPlan === 'premium') {
-                        fileInputRef.current?.click();
-                      } else {
-                        toast.error('Screenshot upload is for Pro users');
-                      }
-                    }}
+                    onClick={() => fileInputRef.current?.click()}
                     className="p-3 bg-white/10 hover:bg-white/20 rounded-full text-white transition-all"
                     title="Change Screenshot"
                   >
@@ -592,17 +587,9 @@ export function TradeForm({ onClose, onSubmit, initialData, accountBalance = 100
             ) : (
               <button
                 type="button"
-                onClick={() => {
-                  if (userPlan === 'premium') {
-                    fileInputRef.current?.click();
-                  } else {
-                    toast.error('Screenshot upload is available on Pro plan.', {
-                      description: 'Upgrade to attach images to your orders.'
-                    });
-                  }
-                }}
+                onClick={() => fileInputRef.current?.click()}
                 disabled={isUploading}
-                className={`w-full aspect-video border-2 border-dashed border-white/10 rounded-2xl flex flex-col items-center justify-center gap-3 transition-all group ${userPlan === 'premium' ? 'hover:border-blue-500/50 hover:bg-blue-500/5' : 'opacity-60 cursor-not-allowed grayscale'}`}
+                className="w-full aspect-video border-2 border-dashed border-white/10 rounded-2xl flex flex-col items-center justify-center gap-3 transition-all group hover:border-blue-500/50 hover:bg-blue-500/5"
               >
                 <div className="p-4 bg-white/5 rounded-full group-hover:bg-blue-500/10 transition-all">
                   {isUploading ? (
@@ -616,7 +603,7 @@ export function TradeForm({ onClose, onSubmit, initialData, accountBalance = 100
                     {isUploading ? 'Uploading...' : 'Click to upload screenshot'}
                   </p>
                   <p className="text-xs text-gray-600">
-                    {userPlan === 'premium' ? 'Supports JPG, PNG (Max 5MB)' : 'Available on Pro Plan'}
+                    Supports JPG, PNG (Max 10MB)
                   </p>
                 </div>
               </button>
@@ -635,10 +622,22 @@ export function TradeForm({ onClose, onSubmit, initialData, accountBalance = 100
           <div className="p-4 sm:p-6 bg-surface-200 border-t border-border-subtle sticky bottom-0 z-10 shrink-0">
             <button 
               type="submit"
-              disabled={isUploading}
-              className="w-full bg-brand-500 hover:bg-brand-600 disabled:opacity-50 disabled:cursor-not-allowed text-white py-4 rounded-xl font-semibold text-base shadow-sm transition-all active:scale-[0.98]"
+              disabled={isUploading || isSubmitting}
+              className="w-full bg-brand-500 hover:bg-brand-600 disabled:opacity-50 disabled:cursor-not-allowed text-white py-4 rounded-xl font-semibold text-base shadow-sm transition-all active:scale-[0.98] flex items-center justify-center gap-2"
             >
-              {isUploading ? 'Uploading Screenshot...' : (initialData ? 'Update Trade' : 'Record Trade')}
+              {isUploading ? (
+                <>
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  Uploading Screenshot...
+                </>
+              ) : isSubmitting ? (
+                <>
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  Saving Trade...
+                </>
+              ) : (
+                initialData ? 'Update Trade' : 'Record Trade'
+              )}
             </button>
           </div>
       </motion.div>

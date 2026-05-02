@@ -14,7 +14,8 @@ import {
   doc,
   orderBy,
   getDoc,
-  setDoc
+  setDoc,
+  serverTimestamp
 } from 'firebase/firestore';
 import { auth, db, OperationType, handleFirestoreError } from './firebase';
 import { Trade, UserProfile } from './types';
@@ -174,7 +175,10 @@ export default function App() {
   }, [userProfile?.theme]);
 
   const handleAddTrade = async (tradeData: Partial<Trade>) => {
-    if (!user || !userProfile) return;
+    if (!user || !userProfile) {
+      toast.error('You must be logged in to record a trade');
+      return;
+    }
 
     if (userProfile.plan === 'free' && (userProfile.tradeCount || 0) >= 10) {
       toast.error("You have reached your 10 free trades limit. Upgrade to continue.", {
@@ -184,11 +188,20 @@ export default function App() {
     }
 
     try {
-      await addDoc(collection(db, 'trades'), {
+      console.log('Before Firestore save, data:', tradeData);
+      
+      const tradeToSave = {
         ...tradeData,
         userId: user.uid,
-        timestamp: new Date().toISOString()
-      });
+        timestamp: new Date().toISOString(), // Keeping for frontend backward compatibility
+        createdAt: serverTimestamp(),
+        // Mapping fields requested by user
+        result: tradeData.outcome,
+        profit: tradeData.profitLoss
+      };
+
+      await addDoc(collection(db, 'trades'), tradeToSave);
+      console.log('After save success');
       
       const userDocRef = doc(db, 'users', user.uid);
       const newCount = (userProfile.tradeCount || 0) + 1;
@@ -200,8 +213,9 @@ export default function App() {
       setIsTradeModalOpen(false);
       toast.success('Trade recorded successfully');
     } catch (error) {
+      console.error('Firestore save failure:', error);
       handleFirestoreError(error, OperationType.CREATE, 'trades');
-      toast.error('Failed to record trade');
+      toast.error('Failed to save trade');
     }
   };
 
